@@ -119,6 +119,8 @@ grails.project.dependency.resolution = {
         test ":code-coverage:2.0.3-3"
 
         runtime ":cors:1.1.6"
+        
+        compile ":opentele-server-core-plugin:0.1"
     }
 }
 
@@ -152,5 +154,3 @@ if (new File(vidyoPluginDirectory).exists()) {
 }
 
 
-def corePluginDirectory = '../opentele-server-core-plugin'
-grails.plugin.location.'OpenteleServerCorePlugin' = corePluginDirectory
