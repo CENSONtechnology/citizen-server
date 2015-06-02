@@ -96,14 +96,9 @@ environments {
 	development {
 		grails.logging.jul.usebridge = true
 
-		// Support for remote tomcat deployment to tomcat development server
-		tomcat.deploy.username="deployer"
-		tomcat.deploy.password="iequiemuuc5ooBuo"
-		tomcat.deploy.url="http://opentele-devel.silverbullet.dk/manager/text"
-
-        video.enabled = true
-        video.serviceURL = 'https://silverbullet.vconf.dk/services/v1_1/VidyoPortalUserService/'
-        video.client.serviceURL = 'https://silverbullet.vconf.dk/services/VidyoPortalGuestService/'
+        video.enabled = false
+        video.serviceURL = ''
+        video.client.serviceURL = ''
     }
     performance {
     }
@@ -151,6 +146,8 @@ log4j = {
             'grails.app.buildtestdata',
             'grails.app.services.grails.buildtestdata',
             'grails.buildtestdata.DomainInstanceBuilder'
+
+//    debug 'org.springframework.security'
 
     root {
         error 'opentele', 'stdout'
