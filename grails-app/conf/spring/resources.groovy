@@ -21,6 +21,10 @@ beans = {
     nonAuthFilter(NonAuthenticationFilter)
 
     localeResolver(SessionLocaleResolver) {
+        if (grailsApplication.config.containsKey('languageTag')) {
+            grailsApplication.config.defaultLocale = Locale.forLanguageTag(grailsApplication.config.languageTag)
+        }
+
         defaultLocale = grailsApplication.config.defaultLocale
         Locale.setDefault(grailsApplication.config.defaultLocale)
 

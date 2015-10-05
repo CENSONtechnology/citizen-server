@@ -2,12 +2,14 @@ package org.opentele.server.citizen.api
 
 import grails.plugin.springsecurity.annotation.Secured
 import org.opentele.server.core.model.types.PermissionName
+import org.opentele.server.model.LinksCategory
 import org.opentele.server.model.Patient
 
 @Secured(PermissionName.NONE)
 class PatientController {
     static allowedMethods = [show: "GET"]
 
+    def grailsApplication
     def springSecurityService
     def citizenMessageService
 
@@ -35,6 +37,21 @@ class PatientController {
             body.links['acknowledgements'] = createLink(mapping: 'acknowledgements', absolute: true)
         }
 
-        render(contentType: 'application/json') {return body}
+        if (Boolean.valueOf(grailsApplication.config.video.enabled)) {
+            body.links['videoPendingConference'] = createLink(mapping: 'videoPendingConference', absolute: true)
+            body.links['patientHasPendingMeasurement'] = createLink(mapping: 'patientHasPendingMeasurement', absolute: true)
+            body.links['measurementFromPatient'] = createLink(mapping: 'measurementFromPatient', absolute: true)
+        }
+
+        if (hasAnyLinksCategories(patient)) {
+            body.links['linksCategories'] = createLink(mapping: 'linksCategories', absolute: true)
+        }
+
+        [resource: body, resourceType: 'patient']
+    }
+
+    private hasAnyLinksCategories(Patient patient) {
+        def linksCategories = LinksCategory.byPatientGroups(patient.groups)
+        linksCategories.size() > 0
     }
 }

@@ -30,19 +30,19 @@ class MeasurementsController {
 
         def availableMeasurements = citizenMeasurementService.dataForTables(patient, TimeFilter.all())
 
-        render(contentType: 'application/json') {
-            def measurements = []
+        def measurements = []
 
-            availableMeasurements.each() {
-                def type = it.type.toString().toLowerCase()
-                measurements << ['name': type, 'links': [measurement: createLink(mapping: 'measurement', params: [id: type], absolute: true)]]
-            }
-
-            return [
-                    'measurements': measurements,
-                    'links': [self: createLink(mapping: 'measurements', absolute: true)]
-            ]
+        availableMeasurements.each() {
+            def type = it.type.toString().toLowerCase()
+            measurements << ['name': type, 'links': [measurement: createLink(mapping: 'measurement', params: [id: type], absolute: true)]]
         }
+
+        def body = [
+                'measurements': measurements,
+                'links': [self: createLink(mapping: 'measurements', absolute: true)]
+        ]
+
+        [resourceType: 'measurements', resource: body]
     }
 
     @Secured(PermissionName.PATIENT_LOGIN)
@@ -52,10 +52,7 @@ class MeasurementsController {
 
         def errors = validateInput(measurementType, filterType)
         if (errors.size() > 0) {
-            render(status: 422, contentType: 'application/json') {
-                return ['message': 'Validation failed', 'errors': errors]
-            }
-            return
+            return [status: 422, resourceType: 'errors', resource: ['message': 'Validation failed', 'errors': errors]]
         }
 
         def user = springSecurityService.currentUser
@@ -64,17 +61,15 @@ class MeasurementsController {
         def timeFilter = TimeFilter.fromFilterType(filterType)
         def measurements = citizenMeasurementService.patientMeasurementsOfType(patient, timeFilter, measurementType)
 
-        render(contentType: 'application/json') {
-            def unit = measurements ? measurements[0].unit.value() : null
-            def body = [
-                    'type': measurementType.value().toLowerCase(),
-                    'unit': unit,
-                    'measurements': measurements.collect { toClientValues(it, timeFilter) }.flatten(),
-                    'links':  [self: createLink(mapping: 'measurement', params: [id: id], absolute: true)]
-            ]
+        def unit = measurements ? measurements[0].unit.value() : null
+        def body = [
+                'type': measurementType.value().toLowerCase(),
+                'unit': unit,
+                'measurements': measurements.collect { toClientValues(it, timeFilter) }.flatten(),
+                'links':  [self: createLink(mapping: 'measurement', params: [id: id], absolute: true)]
+        ]
 
-            return body
-        }
+        [resourceType: 'measurement', resource: body]
     }
 
     private def validateInput(MeasurementTypeName measurementType, MeasurementFilterType filterType) {

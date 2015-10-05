@@ -83,7 +83,7 @@ class ConferenceStateService {
             Clinician clinician = it.pendingConference.clinician
 
             if (videoConferenceService.userIsAlreadyPresentInOwnRoom(clinician.videoUser, clinician.videoPassword)) {
-                it.context.response.writer << "{roomKey: '${it.pendingConference.roomKey}', serviceUrl: '${getServiceUrl()}'}"
+                it.context.response.writer << "{\"roomKey\": \"${it.pendingConference.roomKey}\", \"serviceUrl\": \"${getServiceUrl()}\"}"
             } else {
                 it.pendingConference.delete()
             }

@@ -25,7 +25,18 @@ class SetConfigurationTests extends AbstractCliTestCase {
 
     void testSetConfiguration() {
 
-        execute(["set-configuration", "--configGroovyPath=test/cli/SetConfiguration/Config.groovy", "--user=user_name", "--pw=passw", "--server=localhost:3307", "--db=opentele", "--context=test-app-context"])
+        execute([
+                "set-configuration",
+                "--configGroovyPath=test/cli/SetConfiguration/Config.groovy",
+                "--language=da-DK",
+                "--user=user_name",
+                 "--pw=passw",
+                "--server=localhost:3307",
+                "--db=opentele",
+                "--dbVendor=mysql",
+                "--context=test-app-context",
+                "--enableVideo=false"
+        ])
 
         assertEquals 0, waitForProcess()
         verifyHeader()
@@ -35,7 +46,9 @@ class SetConfigurationTests extends AbstractCliTestCase {
         assertTrue("Database details missing in file", content["dataSource.url"].contains("localhost:3307/opentele"))
         assertTrue("Username missing in file", content["dataSource.username"] == "user_name")
         assertTrue("Password missing in file", content["dataSource.password"] == "passw")
+        assertTrue("Locale config missing in file", content["languageTag"] == "da-DK")
         assertTrue("logging suffix missing in file", content["logging.suffix"] == "test-app-context")
+        assertTrue("video enabled missing in file", content["video.enabled"] == "false")
         assertTrue("Config.groovy not updated", configGroovyFile.text.contains("grails.config.locations = [\"file:\${userHome}/.opentele/datamon-test-app-context-config.properties\"]"))
     }
 }

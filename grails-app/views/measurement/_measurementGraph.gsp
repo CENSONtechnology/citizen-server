@@ -16,7 +16,7 @@
 
             formatStringX: '${message(code:"graph.label.x.format.${measurement.type}")}',
             ticksX: ${measurement.ticksX as JSON},
-
+            measurementType: '${measurement.type}',
             minimumY: ${measurement.minY},
             maximumY: ${measurement.maxY},
             labelY: '${message(code:"graph.label.y.${measurement.type}")}',

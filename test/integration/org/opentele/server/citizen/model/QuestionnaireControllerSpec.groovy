@@ -104,6 +104,42 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
         bloodPressureMeasurement.deviceIdentification == "ABCD1234"
     }
 
+    def 'will accept UA delay value for CTG measurements'() {
+        when:
+        inQuestionnaire 'CTG'
+        withOutput('MonicaDeviceNode', [
+                fhr: [type: 'Float[]', value: '[120.0, 122.0, 123.8, 124.9, 120.0]'],
+                mhr: [type: 'Float[]', value: '[130.0, 139.0, 140.8, 145.9, 142.0]'],
+                qfhr: [type: 'Float[]', value: '[0,0,3,3,3]'],
+                toco: [type:'Float[]', value:'[1.0, 2.0, 3.8, 4.9, 10.0]'],
+                signal: [type: 'Integer[]', value: '[10,30]'],
+                signalToNoise: [type: 'Integer[]', value: '[1, 2, 3]'],
+                fetalHeight: [type: 'Integer[]', value: '[10, 11, 10]'],
+                voltageStart: [type: 'Float', value: '240.0'],
+                voltageEnd: [type: 'Float', value: '220.0'],
+                startTime: [type: 'String', value: '2012-05-07T17:14:17Z'],
+                endTime: [type: 'String', value: '2012-05-07T17:15:17Z'],
+                uaDelay: [type: 'Integer', value: '4']
+        ]);
+        def ctgMeasurement = newestMeasurement()
+
+        then:
+        controller.response.json[0][0].toString() == 'success'
+
+        ctgMeasurement.fhr == '[120.0, 122.0, 123.8, 124.9, 120.0]'
+        ctgMeasurement.mhr == '[130.0, 139.0, 140.8, 145.9, 142.0]'
+        ctgMeasurement.qfhr == '[0,0,3,3,3]'
+        ctgMeasurement.toco == '[1.0, 2.0, 3.8, 4.9, 10.0]'
+        ctgMeasurement.signals == '[10,30]'
+        ctgMeasurement.signalToNoise == '[1, 2, 3]'
+        ctgMeasurement.fetalHeight == '[10, 11, 10]'
+        ctgMeasurement.voltageStart == 240.0
+        ctgMeasurement.voltageEnd == 220.0
+        ctgMeasurement.uaDelay == 4
+
+    }
+
+
     def 'can upload urine result with legal value'() {
         when:
         inQuestionnaire 'Proteinindhold i urin'

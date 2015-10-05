@@ -62,18 +62,6 @@
             measurement[5] = formatDate(new Date(measurement[0]));
         };
 
-        var handleMeasurementNote = function(measurement) {
-            var ackNote = measurement[3];
-            if (ackNote !== '' && measurement.length > 3) {
-                measurement[3] = '<tr>' +
-                        '<td>${message(code:'patient.acknowledge.note')}:</td>' +
-                        '</tr>' +
-                        '<tr>' +
-                        '<td nowrap="wrap" style="width:160px;">' + ackNote + '</td>' +
-                        '</tr>';
-            }
-        };
-
         var id = 0;
         series.forEach(function(measurements) {
             measurements.forEach(function(measurement) {
@@ -81,7 +69,6 @@
                     return;
                 }
                 copyDate(measurement);
-                handleMeasurementNote(measurement);
                 measurement.push(id);
                 id++;
             });
@@ -317,35 +304,6 @@
                 <g:if test="${request.graphForPatient}">
                 highlighterFormatString = '<div>%1$s %3$s, %5$s</div>';
                 </g:if>
-                <g:else>
-                var seenAckNote = false;
-                series.forEach(function(aSeries) {
-                    aSeries.forEach(function(aMeasurement) {
-                        if (aMeasurement !== undefined && aMeasurement !== null) {
-                        var ackNote = aMeasurement[3];
-                        if (ackNote !== undefined && ackNote !== null && ackNote !== '') {
-                            seenAckNote = true;
-                            aMeasurement[3] =
-                                    '<tr>' +
-                                      '<td>' +
-                                        '${message(code:'patient.acknowledge.note')}:' +
-                                      '</td>' +
-                                    '</tr>' +
-                                    '<tr>' +
-                                      '<td nowrap="wrap">' +
-                                        ackNote +
-                                      '</td>' +
-                                    '</tr>';
-                        }
-                        }
-                    });
-                });
-            if (seenAckNote) {
-                highlighterFormatString = '<table><tr><td>%1$s %3$s, %5$s</td></tr>%4$s</table>';
-            } else {
-                highlighterFormatString = '<div>%1$s %3$s, %5$s</div>';
-            }
-                </g:else>
             }
             </g:if>
             <g:else>

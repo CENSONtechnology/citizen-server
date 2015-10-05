@@ -114,7 +114,7 @@ class RealTimeCTGControllerSpec extends Specification {
     }
 
     private def setupForTooManySamples() {
-        grailsApplication.config.milou.realtimectg.maxPerPatient = 1
+        grailsApplication.config.milou.realtimectg.maxPerPatient = "1"
         def ctg1 = RealTimeCtg.build(patient: patient)
         def ctg2 = RealTimeCtg.build(patient: patient)
         ctg1.save(failOnError: true)

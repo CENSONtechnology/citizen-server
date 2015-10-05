@@ -214,14 +214,17 @@ class CitizenMeasurementService {
         bloodsugarData
     }
 
-    private void processMeasurements(Patient patient, TimeFilter timeFilter, MeasurementType type, Closure closure) {
+    private void processMeasurements(Patient patient, TimeFilter timeFilter,
+                                     MeasurementType type, Closure closure) {
         List<Measurement> measurementsOfType = findMeasurements(patient, type, timeFilter)
         if (measurementsOfType) {
             closure.call(measurementsOfType)
         }
     }
 
-    private void addGraphData(Patient patient, MeasurementType type, TimeFilter timeFilter, List<Measurement> measurementsOfType, List graphDataList) {
+    private void addGraphData(Patient patient, MeasurementType type,
+                              TimeFilter timeFilter, List<Measurement> measurementsOfType,
+                              List graphDataList) {
         if(!(type.name in MeasurementTypeName.TABLE_CAPABLE_MEASUREMENT_TYPE_NAME)) {
             return
         }
@@ -311,7 +314,8 @@ class CitizenMeasurementService {
     // Client + server
     private TableData createTableData(MeasurementTypeName type, List<Measurement> measurements) {
         def tableMeasurementsNewestFirst = measurements.collect { measurement ->
-            new TableMeasurement(measurement, AboveWarningThresholdPredicate.isTrueFor(measurement), AboveAlertThresholdPredicate.isTrueFor(measurement))
+            new TableMeasurement(measurement, AboveWarningThresholdPredicate.isTrueFor(measurement),
+                    AboveAlertThresholdPredicate.isTrueFor(measurement))
         }.reverse()
 
         new TableData(type: type, measurements: tableMeasurementsNewestFirst)
@@ -528,7 +532,8 @@ class CitizenMeasurementService {
         if (type.name == MeasurementTypeName.CONTINUOUS_BLOOD_SUGAR_MEASUREMENT) {
             if (timeFilter.isLimited) {
                 def measurements = Measurement.findAllByPatientAndMeasurementType(patient, type, [sort: "time", order: "desc"])
-                def cgmMeasurements = ContinuousBloodSugarEvent.findAllByMeasurementInListAndTimeBetween(measurements, timeFilter.start, timeFilter.end, [sort: "time", order: "desc"])
+                def cgmMeasurements = ContinuousBloodSugarEvent.findAllByMeasurementInListAndTimeBetween(
+                        measurements, timeFilter.start, timeFilter.end, [sort: "time", order: "desc"])
 
                 cgmMeasurements*.measurement.unique()
                 //The list of measurement holding ContinuousBloodSugarMeasurement that fall within the timefilter period
@@ -565,10 +570,16 @@ class CitizenMeasurementService {
 
     private def bloodPressureSeries(List<Measurement> measurements) {
         def systolic = measurements.collect { measurement ->
-            [measurement.time.time, measurement.systolic, hourAndMinute(measurement.time), note(measurement), i18nService.message(code: "patient.overview.measurements.SYSTOLIC_BLOOD_PRESSURE") + ": ${measurement.systolic as int}"]
+            [measurement.time.time, measurement.systolic,
+             hourAndMinute(measurement.time), note(measurement),
+             i18nService.message(code: "patient.overview.measurements.SYSTOLIC_BLOOD_PRESSURE") +
+                     ": ${measurement.systolic as int}"]
         }
         def diastolic = measurements.collect { measurement ->
-            [measurement.time.time, measurement.diastolic, hourAndMinute(measurement.time), note(measurement), i18nService.message(code: "patient.overview.measurements.DIASTOLIC_BLOOD_PRESSURE") + ": ${measurement.diastolic as int}"]
+            [measurement.time.time, measurement.diastolic,
+             hourAndMinute(measurement.time), note(measurement),
+             i18nService.message(code: "patient.overview.measurements.DIASTOLIC_BLOOD_PRESSURE") +
+                     ": ${measurement.diastolic as int}"]
         }
 
         [systolic, diastolic]
@@ -576,7 +587,10 @@ class CitizenMeasurementService {
 
     private def systolicGraphSeries(List<Measurement> measurements) {
         def series = measurements.collect { measurement ->
-            [measurement.time.time, measurement.systolic, hourAndMinute(measurement.time), note(measurement), i18nService.message(code: "patient.overview.measurements.SYSTOLIC_BLOOD_PRESSURE") + ": ${measurement.systolic as int}"]
+            [measurement.time.time, measurement.systolic,
+             hourAndMinute(measurement.time), note(measurement),
+             i18nService.message(code: "patient.overview.measurements.SYSTOLIC_BLOOD_PRESSURE") +
+                     ": ${measurement.systolic as int}"]
         }
 
         [series]
@@ -585,7 +599,10 @@ class CitizenMeasurementService {
     private def diastolicGraphSeries(List<Measurement> measurements) {
 
         def series = measurements.collect { measurement ->
-            [measurement.time.time, measurement.diastolic, hourAndMinute(measurement.time), note(measurement), i18nService.message(code: "patient.overview.measurements.DIASTOLIC_BLOOD_PRESSURE") + ": ${measurement.diastolic as int}"]
+            [measurement.time.time, measurement.diastolic,
+             hourAndMinute(measurement.time), note(measurement),
+             i18nService.message(code: "patient.overview.measurements.DIASTOLIC_BLOOD_PRESSURE") +
+                     ": ${measurement.diastolic as int}"]
         }
 
         [series]
@@ -593,7 +610,10 @@ class CitizenMeasurementService {
 
     private def pulseGraphSeries(List<Measurement> measurements) {
         def series = measurements.collect { measurement ->
-            [measurement.time.time, measurement.value, hourAndMinute(measurement.time), note(measurement),  i18nService.message(code: "patient.overview.table.label.PULSE") + ": ${measurement}"]
+            [measurement.time.time, measurement.value,
+             hourAndMinute(measurement.time), note(measurement),
+             i18nService.message(code: "patient.overview.table.label.PULSE") +
+                     ": ${measurement}"]
         }
 
         [series]
@@ -601,7 +621,8 @@ class CitizenMeasurementService {
 
     private def generalGraphSeries(List<Measurement> measurements) {
         def series = measurements.collect { measurement ->
-            [measurement.time.time, measurement.value, hourAndMinute(measurement.time), note(measurement), "${measurement}"]
+            [measurement.time.time, measurement.value,
+             hourAndMinute(measurement.time), note(measurement), "${measurement}"]
         }
 
         [series]
@@ -624,19 +645,42 @@ class CitizenMeasurementService {
                 }
 
                 if(cgmEvent.class.name == "org.opentele.server.model.cgm.ContinuousBloodSugarMeasurement") {
-                    continuousBloodSugarMeasurementSeries << [cgmEvent.time.time, cgmEvent.glucoseValueInmmolPerl, hourAndMinute(cgmEvent.time), note(measurement), "${cgmEvent.glucoseValueInmmolPerl}"]
+                    continuousBloodSugarMeasurementSeries << [
+                            cgmEvent.time.time, cgmEvent.glucoseValueInmmolPerl,
+                            hourAndMinute(cgmEvent.time), note(measurement),
+                            "${cgmEvent.glucoseValueInmmolPerl}"
+                    ]
                 } else if(cgmEvent.class.name == "org.opentele.server.model.cgm.CoulometerReadingEvent") {
-                    coulometerReadingEventSeries << [cgmEvent.time.time, cgmEvent.glucoseValueInmmolPerl, hourAndMinute(cgmEvent.time), note(measurement), "${cgmEvent.glucoseValueInmmolPerl}"]
+                    coulometerReadingEventSeries << [
+                            cgmEvent.time.time, cgmEvent.glucoseValueInmmolPerl,
+                            hourAndMinute(cgmEvent.time), note(measurement),
+                            "${cgmEvent.glucoseValueInmmolPerl}"
+                    ]
                 } else if(cgmEvent.class.name == "org.opentele.server.model.cgm.InsulinEvent") {
-                    insulinEventSeries << [cgmEvent.time.time, 15, hourAndMinute(cgmEvent.time), note(measurement), "${i18nService.message(code: 'graph.cgm.insulinEventSeries', args: [cgmEvent.insulinType, cgmEvent.units])}"]
+                    insulinEventSeries << [
+                            cgmEvent.time.time, 15, hourAndMinute(cgmEvent.time),
+                            note(measurement), "${i18nService.message(code: 'graph.cgm.insulinEventSeries', args: [cgmEvent.insulinType, cgmEvent.units])}"
+                    ]
                 } else if(cgmEvent.class.name == "org.opentele.server.model.cgm.ExerciseEvent") {
-                    exerciseEventSeries << [cgmEvent.time.time, 16, hourAndMinute(cgmEvent.time), note(measurement), "${i18nService.message(code: 'graph.cgm.exerciseEventSeries', args: [cgmEvent.exerciseType, cgmEvent.durationInMinutes, cgmEvent.exerciseIntensity])}"]
+                    exerciseEventSeries << [
+                            cgmEvent.time.time, 16, hourAndMinute(cgmEvent.time),
+                            note(measurement), "${i18nService.message(code: 'graph.cgm.exerciseEventSeries', args: [cgmEvent.exerciseType, cgmEvent.durationInMinutes, cgmEvent.exerciseIntensity])}"
+                    ]
                 } else if(cgmEvent.class.name == "org.opentele.server.model.cgm.MealEvent") {
-                    mealEventSeries << [cgmEvent.time.time, 17, hourAndMinute(cgmEvent.time), note(measurement), "${i18nService.message(code: 'graph.cgm.exerciseMealSeries', args: [cgmEvent.carboGrams, cgmEvent.foodType])}"]
+                    mealEventSeries << [
+                            cgmEvent.time.time, 17, hourAndMinute(cgmEvent.time),
+                            note(measurement), "${i18nService.message(code: 'graph.cgm.exerciseMealSeries', args: [cgmEvent.carboGrams, cgmEvent.foodType])}"
+                    ]
                 } else if(cgmEvent.class.name == "org.opentele.server.model.cgm.StateOfHealthEvent") {
-                    stateOfHealthEventSeries  << [cgmEvent.time.time, 18, hourAndMinute(cgmEvent.time), note(measurement), "${cgmEvent.stateOfHealth}"]
+                    stateOfHealthEventSeries  << [
+                            cgmEvent.time.time, 18, hourAndMinute(cgmEvent.time),
+                            note(measurement), "${cgmEvent.stateOfHealth}"
+                    ]
                 } else if(cgmEvent.class.name == "org.opentele.server.model.cgm.GenericEvent") {
-                    genericEventSeries << [cgmEvent.time.time, 19, hourAndMinute(cgmEvent.time), note(measurement), "${i18nService.message(code: 'graph.cgm.genericEventSeries', args: [cgmEvent.indicatedEvent])}"]
+                    genericEventSeries << [
+                            cgmEvent.time.time, 19, hourAndMinute(cgmEvent.time),
+                            note(measurement), "${i18nService.message(code: 'graph.cgm.genericEventSeries', args: [cgmEvent.indicatedEvent])}"
+                    ]
                 } else {
                     log.debug("Unknown ContinuousBloodSugarEvent type: ${cgmEvent}")
                 }

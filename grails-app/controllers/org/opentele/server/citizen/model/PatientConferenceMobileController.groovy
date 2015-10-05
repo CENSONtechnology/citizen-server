@@ -41,7 +41,7 @@ class PatientConferenceMobileController {
             def reply = [type: waitingConferenceMeasurementDraft.type.name()]
             render reply as JSON
         } else {
-            render ''
+            render [:] as JSON
         }
     }
 

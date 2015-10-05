@@ -45,7 +45,15 @@ class MeasurementsControllerSpec extends Specification{
     def mockSpringSecurityService
     def mockCitizenMeasurementService
 
+    def response
+
+    def getBody() {
+        return response.resource
+    }
+
     def setup() {
+
+        response = null
         patient = new PatientBuilder().build()
         patient.user = new User()
 
@@ -75,10 +83,9 @@ class MeasurementsControllerSpec extends Specification{
 
     void "can get an empty list of measurements links"() {
         when:
-        controller.list()
+        response = controller.list()
 
         then:
-        def body = new JSONObject(response.text)
         body.measurements.size() == 0
         body.links.self.toURI() != null
     }
@@ -90,10 +97,9 @@ class MeasurementsControllerSpec extends Specification{
         }
 
         when:
-        controller.list()
+        response = controller.list()
 
         then:
-        def body = new JSONObject(response.text)
         body.measurements.size() == 3
         body.measurements[0].name == 'blood_sugar'
         body.measurements[0].links['measurement'].toURI() != null
@@ -110,10 +116,9 @@ class MeasurementsControllerSpec extends Specification{
         setup:
 
         when:
-        controller.show('pulse', null)
+        response = controller.show('pulse', null)
 
         then:
-        def body = new JSONObject(response.text)
         body != null
         body.type == "pulse"
         body.unit.equals(null)
@@ -131,10 +136,9 @@ class MeasurementsControllerSpec extends Specification{
         }
 
         when:
-        controller.show('pulse', 'ALL')
+        response = controller.show('pulse', 'ALL')
 
         then:
-        def body = new JSONObject(response.text)
         body != null
         body.type == "pulse"
         body.unit == m1.unit.value()
@@ -152,10 +156,9 @@ class MeasurementsControllerSpec extends Specification{
         }
 
         when:
-        controller.show('urine', 'Month')
+        response = controller.show('urine', 'Month')
 
         then:
-        def body = new JSONObject(response.text)
         body != null
         body.type == "urine"
         body.unit == m1.unit.value()
@@ -173,10 +176,9 @@ class MeasurementsControllerSpec extends Specification{
         }
 
         when:
-        controller.show('urine_glucose', 'quarter')
+        response = controller.show('urine_glucose', 'quarter')
 
         then:
-        def body = new JSONObject(response.text)
         body != null
         body.type == "urine_glucose"
         body.unit == m1.unit.value()
@@ -194,10 +196,9 @@ class MeasurementsControllerSpec extends Specification{
         }
 
         when:
-        controller.show('bloodsugar', 'yEar')
+        response = controller.show('bloodsugar', 'yEar')
 
         then:
-        def body = new JSONObject(response.text)
         body != null
         body.type == "bloodsugar"
         body.unit == m1.unit.value()
@@ -239,10 +240,9 @@ class MeasurementsControllerSpec extends Specification{
         }
 
         when:
-        controller.show('continuous_blood_sugar_measurement', 'week')
+        response = controller.show('continuous_blood_sugar_measurement', 'week')
 
         then:
-        def body = new JSONObject(response.text)
         body != null
         body.measurements.size() == 14 // Hyper-, Hypo-, ImpendingHyper-, ImpendingHypoAlarmEvent's should not be included.
         body.type == 'continuous_blood_sugar_measurement'
@@ -305,10 +305,9 @@ class MeasurementsControllerSpec extends Specification{
         }
 
         when:
-        controller.show('continuous_blood_sugar_measurement', 'week')
+        response = controller.show('continuous_blood_sugar_measurement', 'week')
 
         then:
-        def body = new JSONObject(response.text)
         body.measurements.size() == 1
         body.measurements[0].measurement.value == 2
     }
@@ -322,10 +321,9 @@ class MeasurementsControllerSpec extends Specification{
         }
 
         when:
-        controller.show('blood_pressure', 'week')
+        response = controller.show('blood_pressure', 'week')
 
         then:
-        def body = new JSONObject(response.text)
         body != null
         body.type == "blood_pressure"
         body.unit == m1.unit.value()
@@ -337,11 +335,10 @@ class MeasurementsControllerSpec extends Specification{
 
     void "will get error status if measurement type is invalid"() {
         when:
-        controller.show('something_invalid', 'year')
+        response = controller.show('something_invalid', 'year')
 
         then:
         response.status == 422
-        def body = new JSONObject(response.text)
         body.message == "Validation failed"
         body.errors.size() == 1
         def error = body.errors[0]
@@ -352,11 +349,10 @@ class MeasurementsControllerSpec extends Specification{
 
     void "will get error status if time filter is invalid"() {
         when:
-        controller.show('pulse', 'invalid_filter')
+        response = controller.show('pulse', 'invalid_filter')
 
         then:
         response.status == 422
-        def body = new JSONObject(response.text)
         body.message == "Validation failed"
         body.errors.size() == 1
         def error = body.errors[0]
@@ -367,11 +363,10 @@ class MeasurementsControllerSpec extends Specification{
 
     void "time filter = CUSTOM should be invalid in citizen api"() {
         when:
-        controller.show('pulse', 'CUSTOM')
+        response = controller.show('pulse', 'CUSTOM')
 
         then:
         response.status == 422
-        def body = new JSONObject(response.text)
         body.message == "Validation failed"
         body.errors.size() == 1
         def error = body.errors[0]

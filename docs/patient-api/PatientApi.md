@@ -93,7 +93,8 @@ The Patient resource is the central resource in the Patient API as it, in additi
                     "reminders": "https://<host>/rest/reminder/next",
                     "messageThreads": "https://<host>/rest/message/recipients",
                     "unreadMessages": "https://<host>/rest/message/list",
-                    "acknowledgements": "https://<host>/rest/questionnaire/acknowledgements"
+                    "acknowledgements": "https://<host>/rest/questionnaire/acknowledgements",
+                    "linksCategories": "https://<host>/patient/linksCategories"
                 }
             }
 
@@ -342,4 +343,76 @@ Blood pressure|blood_pressure
                 "code": "invalid"
             }]
         }
-        
+
+# Group Links Categories
+
+## Links Categories [/patient/links_categories]
+Patient can be given access to a list of hyperlinks for different resources ,e.g.  user guides etc. These hyperlinks are grouped into categories.
+
++ Model (application/json)
+
+    JSON representation of the Links Categories resource.  For each Links Category it provides a link to the specific Link Category as well as the name of the Link Category.
+
+    + Body
+
+            {
+               "categories":[
+                  {
+                     "name":"Manuals",
+                     "links":{
+                        "linksCategory":"https://<host>patient/links_categories/1"
+                     }
+                  }
+               ],
+               "links":{
+                  "self":"https://<host>/patient/links_categories"
+               }
+            }
+
+### Retrieve Links Categories [GET]
++ Request
+
+    + Headers
+
+            Authorization: Basic <base64 encoded user token>
+
++ Response 200
+
+    [Links Categories][]
+
+## Links Category [/patient/links_categories/{id}]
+A Links Category contain a set of hyperlinks all belonging to the same category.
+
++ Model (application/json)
+
+    JSON representation of the Links Category resource. A  Link Category groups a set of links together. Each link is described by a title and a url.
+
+    + Body
+
+            {
+               "name":"Manuals",
+               "categoryLinks":[
+                  {
+                     "title":"Saturation guide",
+                     "url":"http://www.saturation-explained.com"
+                  },
+                  {
+                     "title":"Bloodpressure guide",
+                     "url":"http://www.bloodpressure-explained.com"
+                  }
+               ],
+               "links":{
+                  "self":"https://<host>/patient/links_categories/1"
+               }
+            }
+
+### Retrieve Links Category [GET]
++ Request
+
+    + Headers
+
+            Authorization: Basic <base64 encoded user token>
+
++ Response 200
+
+    [Links Category][]

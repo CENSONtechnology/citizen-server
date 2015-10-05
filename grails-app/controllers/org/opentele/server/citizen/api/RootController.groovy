@@ -11,7 +11,7 @@ class RootController {
     def show() {
         def apiVersion = new SemanticVersion(grailsApplication.metadata['app.apiVersion'])
 
-        render(contentType: 'application/json') {[
+        def body = [
                 'apiVersion': apiVersion.version,
                 'serverEnvironment': Environment.getCurrent()?.getName(),
                 'links': [
@@ -19,6 +19,8 @@ class RootController {
                         'patient': createLink(controller: 'patient', action: 'show', absolute: true),
                         'api-doc': createLink(uri: '/patient-api.html', absolute: true)
                 ]
-        ]}
+        ]
+
+        [resourceType: 'root', resource: body]
     }
 }

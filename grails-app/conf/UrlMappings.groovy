@@ -23,6 +23,16 @@ class UrlMappings {
             action = 'show'
         }
 
+        name linksCategories: "/patient/links_categories"(parseRequest: true) {
+            controller = 'linksCategories'
+            action = 'list'
+        }
+
+        name linksCategory: "/patient/links_categories/$id?"(parseRequest: true) {
+            controller = 'linksCategories'
+            action = 'show'
+        }
+
         // Special case of questionnaire controller
         "/rest/questionnaire/download/$id"(parseRequest:true){
             controller="questionnaireMobile"
@@ -49,17 +59,17 @@ class UrlMappings {
             action = [GET:"listing", POST: "upload"]
         }
 
-        "/rest/conference/patientHasPendingConference"(parseRequest: true) {
+        name videoPendingConference: "/rest/conference/patientHasPendingConference"(parseRequest: true) {
             controller="patientConferenceMobile"
             action = [GET:"patientHasPendingConference"]
         }
 
-        "/rest/conference/patientHasPendingMeasurement"(parseRequest: true) {
+        name patientHasPendingMeasurement: "/rest/conference/patientHasPendingMeasurement"(parseRequest: true) {
             controller="patientConferenceMobile"
             action = [GET:"patientHasPendingMeasurement"]
         }
 
-        "/rest/conference/measurementFromPatient"(parseRequest: true) {
+        name measurementFromPatient: "/rest/conference/measurementFromPatient"(parseRequest: true) {
             controller="patientConferenceMobile"
             action = [POST:"measurementFromPatient"]
         }
@@ -120,7 +130,7 @@ class UrlMappings {
 		}
 
 		name messages: "/rest/message/list" {
-            controller = "PatientMessage"
+            controller = "patientMessage"
 			action = [GET:"list", POST: "save"]
 		}
 

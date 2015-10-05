@@ -20,7 +20,7 @@ class RealTimeCTGController {
 
         def patient = Patient.findByUser(springSecurityService.currentUser)
 
-        def maxSamplesPerPatient = grailsApplication.config.milou.realtimectg.maxPerPatient
+        def maxSamplesPerPatient = Integer.valueOf(grailsApplication.config.milou.realtimectg.maxPerPatient)
         def noOfSamples = RealTimeCtg.countByPatient(patient)
         if (noOfSamples > maxSamplesPerPatient) {
             deleteSamples(patient)

@@ -55,7 +55,7 @@ grails.web.disable.multipart=false
 grails.exceptionresolver.params.exclude = ['password']
 
 // enable query caching by default
-grails.hibernate.cache.queries = true
+grails.hibernate.cache.queries = false
 
 video {
     enabled = false
@@ -75,8 +75,6 @@ help {
 }
 
 defaultLocale = new Locale("da", "DK")
-// TODO: Er denne kun server?
-measurement.results.tables.css = 'measurement_results_tables.css'
 
 // CORS setup
 cors.url.pattern = '*'
@@ -91,15 +89,22 @@ grails.plugin.databasemigration.updateOnStart = false
 
 milou.realtimectg.maxPerPatient = 100
 
+auditLog.sessionAvailable = false
+
 // set per-environment serverURL stem for creating absolute links
 environments {
 	development {
 		grails.logging.jul.usebridge = true
+    }
 
+<<<<<<< HEAD
         video.enabled = false
         video.serviceURL = ''
         video.client.serviceURL = ''
     }
+=======
+
+>>>>>>> 9c2bee2... Version 2.11.5
     performance {
     }
     test {
@@ -124,6 +129,10 @@ log4j = {
                 name:"opentele", datePattern: "'.'yyyy-MM-dd",
                 file:"${logDirectory}/opentele-citizen${appContext()}.log",
                 layout: pattern(conversionPattern: commonPattern))
+        appender new DailyRollingFileAppender(
+                name:"statistics", datePattern: "'.'yyyy-MM-dd",
+                file:"${logDirectory}/opentele-session-statistics.log",
+                layout: pattern(conversionPattern: commonPattern))
     }
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
@@ -147,11 +156,11 @@ log4j = {
             'grails.app.services.grails.buildtestdata',
             'grails.buildtestdata.DomainInstanceBuilder'
 
-//    debug 'org.springframework.security'
-
     root {
         error 'opentele', 'stdout'
     }
+
+
 
     environments {
         development {
@@ -188,6 +197,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
         '/dbconsole/**': [org.opentele.server.core.model.types.PermissionName.WEB_LOGIN],
 ]
 
+// nonAuthFilter - See https://jira.silverbullet.dk/browse/KIH-1708
 grails.plugin.springsecurity.filterChain.chainMap = [
         '/currentVersion': 'nonAuthFilter',
         '/patient-api.html': 'nonAuthFilter',
