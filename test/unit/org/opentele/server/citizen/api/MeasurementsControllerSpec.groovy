@@ -3,8 +3,6 @@ package org.opentele.server.citizen.api
 import grails.buildtestdata.mixin.Build
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.test.mixin.TestFor
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
 import org.opentele.builders.CompletedQuestionnaireBuilder
 import org.opentele.builders.MeasurementBuilder
 import org.opentele.builders.MeasurementTypeBuilder
@@ -12,17 +10,7 @@ import org.opentele.builders.PatientBuilder
 import org.opentele.server.citizen.CitizenMeasurementService
 import org.opentele.server.core.model.types.MeasurementTypeName
 import org.opentele.server.model.*
-import org.opentele.server.model.cgm.ContinuousBloodSugarMeasurement
-import org.opentele.server.model.cgm.CoulometerReadingEvent
-import org.opentele.server.model.cgm.ExerciseEvent
-import org.opentele.server.model.cgm.GenericEvent
-import org.opentele.server.model.cgm.HyperAlarmEvent
-import org.opentele.server.model.cgm.HypoAlarmEvent
-import org.opentele.server.model.cgm.ImpendingHyperAlarmEvent
-import org.opentele.server.model.cgm.ImpendingHypoAlarmEvent
-import org.opentele.server.model.cgm.InsulinEvent
-import org.opentele.server.model.cgm.MealEvent
-import org.opentele.server.model.cgm.StateOfHealthEvent
+import org.opentele.server.model.cgm.*
 import org.opentele.server.model.patientquestionnaire.CompletedQuestionnaire
 import org.opentele.server.model.patientquestionnaire.MeasurementNodeResult
 import org.opentele.server.model.patientquestionnaire.PatientBooleanNode
@@ -32,8 +20,11 @@ import org.opentele.server.model.questionnaire.QuestionnaireHeader
 import spock.lang.Specification
 
 @TestFor(MeasurementsController)
-@Build([Patient, Measurement, MeasurementNodeResult, QuestionnaireHeader, CompletedQuestionnaire, MeasurementType, PatientQuestionnaire, Clinician, PatientBooleanNode, BooleanNode, ContinuousBloodSugarMeasurement])
-class MeasurementsControllerSpec extends Specification{
+@Build([Patient, Measurement, MeasurementNodeResult, QuestionnaireHeader,
+        CompletedQuestionnaire, MeasurementType, PatientQuestionnaire, Clinician,
+        PatientBooleanNode, BooleanNode, ContinuousBloodSugarMeasurement])
+class MeasurementsControllerSpec extends Specification {
+
     Patient patient
     CompletedQuestionnaire completedQuestionnaire
     MeasurementType pulseMeasurementType
@@ -93,7 +84,9 @@ class MeasurementsControllerSpec extends Specification{
     void "can get list of measurement links"() {
         setup:
         mockCitizenMeasurementService.metaClass.dataForTables = { p, f ->
-            return [[type: 'BLOOD_SUGAR'], [type: 'PULSE'], [type: 'BLOOD_PRESSURE']]
+            return [[type: MeasurementTypeName.BLOODSUGAR],
+                    [type: MeasurementTypeName.PULSE],
+                    [type: MeasurementTypeName.BLOOD_PRESSURE]]
         }
 
         when:
@@ -101,9 +94,9 @@ class MeasurementsControllerSpec extends Specification{
 
         then:
         body.measurements.size() == 3
-        body.measurements[0].name == 'blood_sugar'
+        body.measurements[0].name == 'bloodsugar'
         body.measurements[0].links['measurement'].toURI() != null
-        body.measurements[0].links['measurement'].endsWith("/blood_sugar") == true
+        body.measurements[0].links['measurement'].endsWith("/bloodsugar") == true
         body.measurements[1].name == 'pulse'
         body.measurements[1].links['measurement'].toURI() != null
         body.measurements[1].links['measurement'].endsWith("/pulse") == true

@@ -8,7 +8,6 @@ import org.opentele.server.core.util.OpenTeleSecurityBadCredentialsEventListener
 import org.opentele.server.core.util.OpenTeleSecurityGoodAttemptEventListener
 import org.opentele.server.core.util.OpenteleSecurityBasicAuthenticationFilter
 import org.opentele.server.provider.NonAuthenticationFilter
-import org.opentele.server.provider.OpenteleAuditLogLookup
 import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy
 import org.springframework.security.web.session.ConcurrentSessionFilter
@@ -29,9 +28,9 @@ beans = {
         Locale.setDefault(grailsApplication.config.defaultLocale)
 
         customPropertyEditorRegistrar(CustomPropertyEditorRegistrar)
-        auditLogLookupBean(OpenteleAuditLogLookup)
         userDetailsService(UserDetailsService)
     }
+
     caseInsensitivePasswordAuthenticationProvider(CaseInsensitivePasswordAuthenticationProvider) {
         userDetailsService = ref('userDetailsService')
         passwordEncoder = ref('passwordEncoder')
@@ -75,7 +74,8 @@ beans = {
         expiredUrl = '/login/concurrentSession'
     }
 
-    if(Environment.current.name == 'development' && !BootStrapUtil.isH2DatabaseServerRunning("jdbc:h2:tcp://localhost:8043/clinicianDb", "sa", "")) {
+    if (Environment.current.name == 'development' &&
+            !BootStrapUtil.isH2DatabaseServerRunning("jdbc:h2:tcp://localhost:8043/clinicianDb", "sa", "")) {
         h2Server(org.h2.tools.Server, "-tcp,-tcpPort,8043") { bean ->
             bean.factoryMethod = "createTcpServer"
             bean.initMethod = "start"

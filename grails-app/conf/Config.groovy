@@ -1,6 +1,10 @@
 import org.apache.log4j.DailyRollingFileAppender
 
-grails.config.locations = [ "file:c:/kihdatamon/settings/datamon-citizen-config.properties", "file:${userHome}/.kih/datamon-citizen-config.properties"]
+grails.config.locations = [
+    "file:${userHome}/.opentele/citizen.properties",
+    "file:/etc/opentele/citizen.properties",
+    "file:c:/kihdatamon/settings/datamon-citizen-config.properties"
+]
 
 logging.suffix = ""
 
@@ -106,8 +110,10 @@ environments {
 
 >>>>>>> 9c2bee2... Version 2.11.5
     performance {
+
     }
     test {
+
     }
 }
 

@@ -7,6 +7,7 @@ import org.opentele.server.model.Patient
 
 @Secured(PermissionName.NONE)
 class PatientController {
+
     static allowedMethods = [show: "GET"]
 
     def grailsApplication
@@ -50,7 +51,7 @@ class PatientController {
         [resource: body, resourceType: 'patient']
     }
 
-    private hasAnyLinksCategories(Patient patient) {
+    private static hasAnyLinksCategories(Patient patient) {
         def linksCategories = LinksCategory.byPatientGroups(patient.groups)
         linksCategories.size() > 0
     }

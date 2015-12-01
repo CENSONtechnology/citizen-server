@@ -44,11 +44,6 @@ class UrlMappings {
             action = [GET:"downloadimage"]
         }
 
-        "/rest/patient/login"(parseRequest:true){
-            controller="patientMobile"
-            action = [GET:"login"]
-        }
-
         name password: "/rest/password/update"(parseRequest: true) {
             controller="password"
             action = [POST:"update"]
@@ -72,17 +67,6 @@ class UrlMappings {
         name measurementFromPatient: "/rest/conference/measurementFromPatient"(parseRequest: true) {
             controller="patientConferenceMobile"
             action = [POST:"measurementFromPatient"]
-        }
-
-
-        name patientMeasurementsMobile: "/rest/patient/measurements" {
-            controller = "PatientMeasurementMobile"
-            action = 'index'
-        }
-
-        name patientMeasurementsTypeMobile: "/rest/patient/measurements/$type" {
-            controller = "PatientMeasurementMobile"
-            action = "measurement"
         }
 
         "/rest/measurements/lastContinuousBloodSugarRecordNumber" (controller: 'QuestionnaireMobile', action:'lastContinuousBloodSugarRecordNumber')

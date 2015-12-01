@@ -35,7 +35,6 @@ environments {
             // url = "jdbc:h2:mem:devDb;MVCC=TRUE;IGNORECASE=TRUE"
         }
     }
-
     performance {
         dataSource {
             pooled = true

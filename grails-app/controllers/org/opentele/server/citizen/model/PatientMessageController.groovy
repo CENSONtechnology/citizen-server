@@ -14,7 +14,8 @@ class PatientMessageController {
     def messageService
     def citizenMessageService
 
-    static allowedMethods = [save: "POST", update: "POST", delete: ["POST": "DELETE"], markAsRead: "POST"]
+    static allowedMethods = [save: "POST", update: "POST",
+                             delete: ["POST": "DELETE"], markAsRead: "POST"]
 
     /**
      * The following methods are used by the client:
@@ -87,7 +88,7 @@ class PatientMessageController {
         } as JSON
     }
 
-    private createJsonForDepartments(Department department) {
+    private static createJsonForDepartments(Department department) {
         [
             "id": department.id,
             "name": department.name
@@ -122,7 +123,7 @@ class PatientMessageController {
         }
     }
 
-    private createMessagesListResult(Collection<Message> messages) {
+    private static createMessagesListResult(Collection<Message> messages) {
         def items = messages.collect { createMessageResult(it) }
         def unread = messages.count { !it.sentByPatient && !it.isRead }
 
@@ -132,7 +133,7 @@ class PatientMessageController {
         ]
     }
 
-    private createMessageResult(Message message) {
+    private static createMessageResult(Message message) {
         def patient = [type: 'Patient', id: message.patient.id, name: message.patient.name]
         def department = [type: 'Department', id: message.department.id, name: message.department.name]
 

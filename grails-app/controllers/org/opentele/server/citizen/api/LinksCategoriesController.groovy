@@ -33,7 +33,9 @@ class LinksCategoriesController {
     def show(long id) {
         def category = LinksCategory.get(id)
         if (!category) {
-            return [status: 404, resourceType: 'errors', resource: ['message': 'Links category not found', 'errors': [['resource': 'linksCategory', 'field': 'id', 'code': 'missing']]]]
+            return [status: 404, resourceType: 'errors', resource: [
+                    'message': 'Links category not found',
+                    'errors': [['resource': 'linksCategory', 'field': 'id', 'code': 'missing']]]]
         }
 
         def body = [

@@ -60,7 +60,7 @@ class QuestionnaireMobileController {
 
         def jsonRequest = request.JSON
 
-        def patientQuestionnaireId = jsonRequest.QuestionnaireId as Long
+        Long patientQuestionnaireId = jsonRequest.QuestionnaireId as Long
 
         def errors = []
         def hasErrors = false
@@ -70,7 +70,7 @@ class QuestionnaireMobileController {
             errors <<  "A required parameter is missing. Received: QuestionnaireId:${patientQuestionnaireId}."
         }
 
-        def date
+        def date = null
         if (jsonRequest.date) {
             try {
                 date = ISO8601DateParser.parse(jsonRequest.date)
@@ -92,7 +92,7 @@ class QuestionnaireMobileController {
             results = completedQuestionnaireService.handleResults(patient, patientQuestionnaireId, date, jsonRequest.output)
         }
 
-        render results as JSON
+        render results.results as JSON
     }
 
     @Secured(PermissionName.QUESTIONNAIRE_UPLOAD)
