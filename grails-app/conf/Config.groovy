@@ -101,14 +101,6 @@ environments {
 		grails.logging.jul.usebridge = true
     }
 
-<<<<<<< HEAD
-        video.enabled = false
-        video.serviceURL = ''
-        video.client.serviceURL = ''
-    }
-=======
-
->>>>>>> 9c2bee2... Version 2.11.5
     performance {
 
     }
