@@ -102,7 +102,7 @@ class ConferenceStateServiceSpec extends Specification {
         service.update(at('2013/09/18 13:05:00'))
 
         then:
-        writer.toString() == "{roomKey: 'def', serviceUrl: 'http://serviceUrl'}"
+        writer.toString() == "{\"roomKey\": \"def\", \"serviceUrl\": \"http://serviceUrl\"}"
         1 * context.complete()
         PendingConference.count == 3
     }
@@ -141,8 +141,8 @@ class ConferenceStateServiceSpec extends Specification {
         service.update(at('2013/09/18 13:05:00'))
 
         then:
-        writer.toString() == "{roomKey: 'def', serviceUrl: 'http://serviceUrl'}"
-        anotherWriter.toString() == "{roomKey: 'def', serviceUrl: 'http://serviceUrl'}"
+        writer.toString() == "{\"roomKey\": \"def\", \"serviceUrl\": \"http://serviceUrl\"}"
+        anotherWriter.toString() == "{\"roomKey\": \"def\", \"serviceUrl\": \"http://serviceUrl\"}"
         1 * context.complete()
         1 * anotherContext.complete()
         PendingConference.count == 3
@@ -161,7 +161,7 @@ class ConferenceStateServiceSpec extends Specification {
         service.update(at('2013/09/18 13:04:00'))
 
         then:
-        writer.toString() == "{roomKey: 'def', serviceUrl: 'http://serviceUrl'}"
+        writer.toString() == "{\"roomKey\": \"def\", \"serviceUrl\": \"http://serviceUrl\"}"
         1 * context.complete()
         PendingConference.count == 1
     }

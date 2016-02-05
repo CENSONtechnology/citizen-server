@@ -12,14 +12,14 @@ class HelpImageController {
         HelpImage helpImageInstance = HelpImage.get(params.id)
         if ( helpImageInstance == null) {
             render(status: 404, contentType: 'application/json') {
-                return ['message': 'Image not found', 'errors': ['resource': 'helpImage', 'field': 'id', 'code': 'not_found']]
+                return ['message': 'Image not found',
+                        'errors': ['resource': 'helpImage', 'field': 'id', 'code': 'not_found']]
             }
         } else {
             response.setContentType("APPLICATION/OCTET-STREAM")
             response.setHeader("Content-Disposition", "Attachment;Filename=\"${helpImageInstance.filename}\"")
 
-            def fullPath = HelpImageUtil.getAndEnsureUploadDir() + helpImageInstance.filename
-            def file = new File(fullPath)
+            def file = new File(HelpImageUtil.getAndEnsureUploadDir(), helpImageInstance.filename)
             def fileInputStream = new FileInputStream(file)
             def outputStream = response.getOutputStream()
 

@@ -1,18 +1,17 @@
 import grails.converters.JSON
-import  opentele.server.citizen.ConferenceCallJob
+import opentele.server.citizen.ConferenceCallJob
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.ISODateTimeFormat
 import org.opentele.server.core.util.CustomDomainClassJSONMarshaller
 import org.opentele.server.core.util.CustomGroovyBeanJSONMarshaller
 import org.opentele.server.core.util.JSONMarshallerUtil
-import org.springframework.web.context.support.WebApplicationContextUtils
 
 @SuppressWarnings("GroovyDocCheck")
 class BootStrap {
 
     def springSecurityService
     def grailsApplication
+    def filterInterceptor
 
     def init = { servletContext ->
 
@@ -20,6 +19,7 @@ class BootStrap {
 
         def applicationContext = grailsApplication.mainContext
         configureDatasource(applicationContext)
+        renderResponseFiltersMustBeLastInPipeLine(filterInterceptor.handlers)
 
         // Setup marshaller
         JSONMarshallerUtil.registerCustomJSONMarshallers(grailsApplication)
@@ -27,6 +27,12 @@ class BootStrap {
         if (Boolean.valueOf(grailsApplication.config.video.enabled)) {
             ConferenceCallJob.schedule(1000, -1, [name: 'ConferenceCallJob', startDelay: 0])
         }
+    }
+
+    private renderResponseFiltersMustBeLastInPipeLine(allFilters) {
+        def index = allFilters.findIndexOf {it.filterConfig.name == 'renderResponse'}
+        def filter = allFilters.remove(index)
+        allFilters.add(0, filter)
     }
 
     /**

@@ -12,9 +12,19 @@ grails.project.war.file = "target/${appName}.war"
 // Plugin stuff
 //grails.plugin.location.kihauditlog = "../kih-auditlog"
 
-if(Environment.current == Environment.DEVELOPMENT || Environment.current == Environment.TEST) {
+if(Environment.current == Environment.DEVELOPMENT ||
+        Environment.current == Environment.TEST) {
     grails.server.port.http = 8090
 }
+
+grails.project.fork = []
+//forkConfig = [maxMemory: 1024, minMemory: 64, debug: false, maxPerm: 256]
+//grails.project.fork = [
+//        test: forkConfig, // configure settings for the test-app JVM
+//        run: forkConfig, // configure settings for the run-app JVM
+//        war: forkConfig, // configure settings for the run-war JVM
+//        console: forkConfig // configure settings for the Swing console JVM
+//]
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -98,7 +108,7 @@ grails.project.dependency.resolution = {
         runtime ":hibernate4:4.3.5.5"
         runtime ":jquery:1.11.0.2"
         runtime ":resources:1.2.8"
-        runtime ":kih-auditlog:1.1"
+        runtime ":kih-auditlog:1.7"
         compile ":webflow:2.1.0"
         compile ":quartz:1.0.2"
 
@@ -153,4 +163,8 @@ if (new File(vidyoPluginDirectory).exists()) {
     grails.plugin.location.'VidyoGrailsPlugin' = vidyoPluginDirectory
 }
 
+def medicineListPluginDirectory = '../opentele-server-medicine-list-plugin/citizen'
+if (new File(medicineListPluginDirectory).exists()) {
+    grails.plugin.location.'MedicineListCitizenGrailsPlugin' = medicineListPluginDirectory
+}
 

@@ -9,6 +9,7 @@ import org.opentele.server.model.User
 @SkipAuditLog
 @Secured(['IS_AUTHENTICATED_ANONYMOUSLY'])
 class MetaController {
+
     def sessionRegistry
     def index() {}
     def currentServerVersion() {

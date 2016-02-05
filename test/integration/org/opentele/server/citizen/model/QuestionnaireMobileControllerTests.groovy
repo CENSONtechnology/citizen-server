@@ -409,7 +409,9 @@ class QuestionnaireMobileControllerTests extends AbstractControllerIntegrationTe
 
         assert 'success' == replyController.response.json[0][0].toString()
     }
-    
+
+    //TODO: Snak med reviewer om at slette nedenstående test
+
     @Test
     void testUploadCtgResult() {
         PatientQuestionnaire origPq = getPatientQuestionnaire("CTG")

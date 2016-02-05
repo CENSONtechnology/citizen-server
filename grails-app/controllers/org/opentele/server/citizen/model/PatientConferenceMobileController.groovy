@@ -41,7 +41,7 @@ class PatientConferenceMobileController {
             def reply = [type: waitingConferenceMeasurementDraft.type.name()]
             render reply as JSON
         } else {
-            render ''
+            render [:] as JSON
         }
     }
 
@@ -82,7 +82,7 @@ class PatientConferenceMobileController {
         render ''
     }
 
-    private ConferenceMeasurementDraft waitingConferenceMeasurementDraft(Patient patient, ConferenceMeasurementDraftType... types) {
+    private static ConferenceMeasurementDraft waitingConferenceMeasurementDraft(Patient patient, ConferenceMeasurementDraftType... types) {
         def allUnfinishedConferences = Conference.findAllByPatientAndCompleted(patient, false, [sort: 'id'])
         def conferenceWithWaitingMeasurementDraft = allUnfinishedConferences.find {
             it.measurementDrafts.any { it.automatic && it.waiting && it.type in types }
@@ -94,7 +94,7 @@ class PatientConferenceMobileController {
         sortedDrafts.find { it.automatic && it.waiting && it.type in types }
     }
 
-    private fillOutLungFunctionMeasurement(ConferenceLungFunctionMeasurementDraft draft, submittedMeasurement) {
+    private static fillOutLungFunctionMeasurement(ConferenceLungFunctionMeasurementDraft draft, submittedMeasurement) {
         draft.fev1 = submittedMeasurement.fev1
         draft.fev6 = submittedMeasurement.fev6
         draft.fev1Fev6Ratio = submittedMeasurement.fev1Fev6Ratio
@@ -103,14 +103,14 @@ class PatientConferenceMobileController {
         draft.softwareVersion = submittedMeasurement.softwareVersion
     }
 
-    private fillOutBloodPressureMeasurement(ConferenceBloodPressureMeasurementDraft draft, submittedMeasurement) {
+    private static fillOutBloodPressureMeasurement(ConferenceBloodPressureMeasurementDraft draft, submittedMeasurement) {
         draft.systolic = submittedMeasurement.systolic
         draft.diastolic = submittedMeasurement.diastolic
         draft.pulse = submittedMeasurement.pulse
         draft.meanArterialPressure = submittedMeasurement.meanArterialPressure
     }
 
-    private fillOutSaturationMeasurement(ConferenceSaturationMeasurementDraft draft, submittedMeasurement) {
+    private static fillOutSaturationMeasurement(ConferenceSaturationMeasurementDraft draft, submittedMeasurement) {
         draft.saturation = submittedMeasurement.saturation
         draft.pulse = submittedMeasurement.pulse
     }

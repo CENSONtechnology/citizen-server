@@ -50,7 +50,7 @@ class PatientConferenceMobileControllerSpec extends Specification{
         controller.patientHasPendingMeasurement()
 
         then:
-        response.text == ''
+        response.text == '{}'
     }
 
     def 'knows that patient has no pending measurements when no automatic, waiting measurement drafts exist'() {
@@ -64,7 +64,7 @@ class PatientConferenceMobileControllerSpec extends Specification{
         controller.patientHasPendingMeasurement()
 
         then:
-        response.text == ''
+        response.text == '{}'
     }
 
     def 'knows when patient has pending measurement'() {
