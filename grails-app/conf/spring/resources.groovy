@@ -75,7 +75,7 @@ beans = {
     }
 
     if (Environment.current.name == 'development'
-    && grailsApplication.config.dataSource.dialect == "org.opentele.server.core.util.H2Dialect"
+    && grailsApplication.config.dataSource.dialect == org.opentele.server.core.util.H2Dialect.getName()
     && !BootStrapUtil.isH2DatabaseServerRunning("jdbc:h2:tcp://localhost:8043/clinicianDb", "sa", "")) 
     {
         h2Server(org.h2.tools.Server, "-tcp,-tcpPort,8043") { bean ->
