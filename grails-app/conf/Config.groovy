@@ -202,12 +202,11 @@ grails.plugin.springsecurity.filterChain.chainMap = [
         '/isAlive': 'nonAuthFilter',
         '/isAlive/json': 'nonAuthFilter',
         '/isAlive/html': 'nonAuthFilter',
-        '/**': 'JOINED_FILTERS,-exceptionTranslationFilter,-sessionManagementFilter',
+        '/**': 'JOINED_FILTERS,-exceptionTranslationFilter,-sessionManagementFilter,-rememberMeAuthenticationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter'
 ]
 grails.plugin.springsecurity.providerNames = [
         'caseInsensitivePasswordAuthenticationProvider',
         'anonymousAuthenticationProvider',
-        'rememberMeAuthenticationProvider'
 ]
 
 passwordRetryGracePeriod=120
