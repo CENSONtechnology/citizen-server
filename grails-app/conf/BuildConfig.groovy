@@ -48,7 +48,8 @@ grails.project.dependency.resolution = {
 
         // uncomment these to enable remote dependency resolution from public Maven repositories
         //mavenRepo "http://snapshots.repository.codehaus.org"
-        mavenRepo name: "4Sext", root: "http://artifactory.4s-online.dk/artifactory/ext-release-local/"        mavenRepo "http://download.java.net/maven/2/"
+        mavenRepo name: "4Sext", root: "http://artifactory.4s-online.dk/artifactory/ext-release-local/"        
+        mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
     }
