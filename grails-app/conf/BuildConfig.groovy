@@ -44,17 +44,12 @@ grails.project.dependency.resolution = {
         grailsHome()
         grailsCentral()
         mavenCentral()
+        mavenLocal()
 
         // uncomment these to enable remote dependency resolution from public Maven repositories
-        //mavenCentral()
-        mavenLocal()
         //mavenRepo "http://snapshots.repository.codehaus.org"
-
-        mavenCentral()
-        grailsCentral()
-        mavenRepo name: "SilverbulletExt", root: "http://ci.silverbullet.dk/artifactory/ext-release-local"
+        mavenRepo name: "4Sext", root: "http://artifactory.4s-online.dk/artifactory/ext-release-local/"        
         mavenRepo "http://download.java.net/maven/2/"
-
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
     }
