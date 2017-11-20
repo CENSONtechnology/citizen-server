@@ -51,33 +51,21 @@ class CitizenMeasurementServiceSpec extends Specification {
         String.metaClass.encodeAsJavaScript { it }
 
         patient = new PatientBuilder().build()
-        completedQuestionnaire = new CompletedQuestionnaireBuilder()
-                .forPatient(patient).build()
+        completedQuestionnaire = new CompletedQuestionnaireBuilder().forPatient(patient).build()
 
-        bloodPressureMeasurementType = new MeasurementTypeBuilder()
-                .ofType(MeasurementTypeName.BLOOD_PRESSURE).build()
-        ctgMeasurementType = new MeasurementTypeBuilder()
-                .ofType(MeasurementTypeName.CTG).build()
-        pulseMeasurementType = new MeasurementTypeBuilder()
-                .ofType(MeasurementTypeName.PULSE).build()
-        lungFunctionMeasurementType = new MeasurementTypeBuilder()
-                .ofType(MeasurementTypeName.LUNG_FUNCTION).build()
-        bloodsugarMeasurementType = new MeasurementTypeBuilder()
-                .ofType(MeasurementTypeName.BLOODSUGAR).build()
-        continuousBloodSugarMeasurementType = new MeasurementTypeBuilder()
-                .ofType(MeasurementTypeName.CONTINUOUS_BLOOD_SUGAR_MEASUREMENT).build()
+
+        MeasurementTypeName.values().each {
+            def type ->
+                if(type == MeasurementTypeName.BLOOD_PRESSURE) {
+                    def bloodPressureMeasurementType = new MeasurementTypeBuilder().ofType(type).build();
+                    patient.thresholds.add(new BloodPressureThreshold(type: bloodPressureMeasurementType, systolicAlertLow: 70, systolicAlertHigh: 190, systolicWarningHigh: 180, systolicWarningLow: 80, diastolicAlertHigh: 100, diastolicWarningHigh: 90, diastolicWarningLow: 50, diastolicAlertLow: 40))
+                } else {
+                    new MeasurementTypeBuilder().ofType(type).build();
+                }
+        }
 
         patient.save()
-        patient.thresholds.add(new BloodPressureThreshold(
-                type: bloodPressureMeasurementType,
-                systolicAlertLow: 70,
-                systolicAlertHigh: 190,
-                systolicWarningHigh: 180,
-                systolicWarningLow: 80,
-                diastolicAlertHigh: 100,
-                diastolicWarningHigh: 90,
-                diastolicWarningLow: 50,
-                diastolicAlertLow: 40))
+
     }
 
     def "only gives table data for measurement types with data"() {
@@ -164,6 +152,26 @@ class CitizenMeasurementServiceSpec extends Specification {
 
         then:
         measurements.size() == 0
+    }
+
+    def "returns tables data with urine measurements in expected order"() {
+        setup:
+
+        MeasurementTypeName.values().each {
+            def type ->
+                new MeasurementBuilder().ofType(type).inQuestionnaire(completedQuestionnaire).build();
+        }
+
+        when:
+        def tableData = service.dataForTables(patient, TimeFilter.all())
+
+        then:
+        tableData[9].type == MeasurementTypeName.URINE_BLOOD
+        tableData[10].type == MeasurementTypeName.URINE
+        tableData[11].type == MeasurementTypeName.URINE_GLUCOSE
+        tableData[12].type == MeasurementTypeName.URINE_NITRITE
+        tableData[13].type == MeasurementTypeName.URINE_LEUKOCYTES
+
     }
 
 }

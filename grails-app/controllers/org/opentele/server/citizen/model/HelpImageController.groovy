@@ -6,32 +6,37 @@ import org.opentele.server.util.HelpImageUtil
 import org.opentele.server.core.model.types.PermissionName
 
 class HelpImageController {
+    static allowedMethods = [downloadimage: "GET"]
 
     @Secured(PermissionName.PATIENT_QUESTIONNAIRE_READ_ALL)
     def downloadimage() {
-        HelpImage helpImageInstance = HelpImage.get(params.id)
-        if ( helpImageInstance == null) {
+        HelpImage helpImageInstance = HelpImage.get(params.id as Long)
+
+        if (helpImageInstance == null) {
             render(status: 404, contentType: 'application/json') {
                 return ['message': 'Image not found',
                         'errors': ['resource': 'helpImage', 'field': 'id', 'code': 'not_found']]
             }
+
         } else {
-            response.setContentType("APPLICATION/OCTET-STREAM")
-            response.setHeader("Content-Disposition", "Attachment;Filename=\"${helpImageInstance.filename}\"")
 
             def file = new File(HelpImageUtil.getAndEnsureUploadDir(), helpImageInstance.filename)
-            def fileInputStream = new FileInputStream(file)
-            def outputStream = response.getOutputStream()
+            String base64EncodedContent = new String(Base64.encoder.encode(file.bytes))
+            byte[] prefixedData = "data:${formatPrefix(file)};base64,${base64EncodedContent}".bytes
 
-            byte[] buffer = new byte[4096];
-            int len;
-            while ((len = fileInputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, len);
-            }
+            def outputStream = response.getOutputStream()
+            outputStream.write(prefixedData)
 
             outputStream.flush()
             outputStream.close()
-            fileInputStream.close()
         }
+    }
+
+    private def formatPrefix(File imageFile) {
+        def fileName = imageFile.name
+        def extensionStart = fileName.lastIndexOf(".")
+        def extension = fileName.substring(extensionStart + 1)
+
+        "image/${extension}"
     }
 }

@@ -22,6 +22,7 @@ class PatientController {
         def body = [
                 'firstName': patient.firstName,
                 'lastName': patient.lastName,
+                'uniqueId': patient.cpr,
                 'passwordExpired': patient.user.cleartextPassword ? true : false,
                 'links': [
                         'self': createLink(mapping: 'patient', absolute: true),
@@ -42,6 +43,13 @@ class PatientController {
             body.links['videoPendingConference'] = createLink(mapping: 'videoPendingConference', absolute: true)
             body.links['patientHasPendingMeasurement'] = createLink(mapping: 'patientHasPendingMeasurement', absolute: true)
             body.links['measurementFromPatient'] = createLink(mapping: 'measurementFromPatient', absolute: true)
+        }
+
+        Boolean continuousCtgEnabled = Boolean.valueOf(grailsApplication.config.continuousCtg.enabled)
+        Boolean patientHasContinuousCTG = patient.patient2PatientGroups*.patientGroup.any { it.showRunningCtgMessaging }
+
+        if (continuousCtgEnabled && patientHasContinuousCTG) {
+            body.links['continuousCtg'] = grailsApplication.config.continuousCtg.url
         }
 
         if (hasAnyLinksCategories(patient)) {

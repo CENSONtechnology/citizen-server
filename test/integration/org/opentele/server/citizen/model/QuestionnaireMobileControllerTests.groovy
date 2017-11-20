@@ -5,6 +5,7 @@ import grails.test.mixin.integration.IntegrationTestMixin
 import org.junit.Test
 import org.opentele.server.core.test.AbstractControllerIntegrationTest
 import org.opentele.server.model.BloodPressureThreshold
+import org.opentele.server.model.DeviceOrigin
 import org.opentele.server.model.Measurement
 import org.opentele.server.model.MeasurementType
 import org.opentele.server.model.NumericThreshold
@@ -436,7 +437,7 @@ class QuestionnaireMobileControllerTests extends AbstractControllerIntegrationTe
         def signalToNoiseId
         def fetalHeightId
         def qfhrId
-        def deviceId
+        def origin
 
         boolean foundMonica = false
         controller.response.json.nodes.each() { node ->
@@ -455,7 +456,7 @@ class QuestionnaireMobileControllerTests extends AbstractControllerIntegrationTe
                 assertNotNull monicaNode.qfhr
                 assertNotNull monicaNode.signalToNoise
                 assertNotNull monicaNode.fetalHeight
-                assertNotNull monicaNode.deviceId
+                assertNotNull monicaNode.origin
 
                 startTimeId = monicaNode.startTime.name
                 endTimeId = monicaNode.endTime.name
@@ -468,7 +469,7 @@ class QuestionnaireMobileControllerTests extends AbstractControllerIntegrationTe
                 signalId = monicaNode.signal.name
                 signalToNoiseId = monicaNode.signalToNoise.name
                 fetalHeightId = monicaNode.fetalHeight.name
-                deviceId = monicaNode.deviceId.name
+                origin = monicaNode.origin.name
             }
         }
 
@@ -500,7 +501,11 @@ class QuestionnaireMobileControllerTests extends AbstractControllerIntegrationTe
                 ["name":signalId, "type":"Integer[]", "value": signal],
                 ["name":signalToNoiseId, type:"Integer[]", "value": signalToNoise],
                 ["name":fetalHeightId, type:"Integer[]", "value": fetalHeight],
-                ["name":deviceId, type:"String", "value": "1234"],
+                ["name":origin, type:"Object", "value": [device_measurement: [
+                    primary_device_identifier: [
+                        serial_number: "501577857"
+                    ]
+                ]]],
             ]
         ]
 
@@ -519,7 +524,7 @@ class QuestionnaireMobileControllerTests extends AbstractControllerIntegrationTe
         assert newestMeasurement.signals == '[10,30]'
         assert newestMeasurement.fetalHeight == '[10,11,10]'
         assert newestMeasurement.signalToNoise == '[1,2,3]'
-        assert newestMeasurement.deviceIdentification == "1234"
+        assert newestMeasurement.origin instanceof DeviceOrigin
     }
 
     @Test

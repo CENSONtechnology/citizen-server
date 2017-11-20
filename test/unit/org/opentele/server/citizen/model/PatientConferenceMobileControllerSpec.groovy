@@ -3,32 +3,33 @@ package org.opentele.server.citizen.model
 
 import grails.buildtestdata.mixin.Build
 import grails.test.mixin.*
-import grails.test.mixin.support.GrailsUnitTestMixin
-import org.opentele.server.citizen.ConferenceStateService
 import org.opentele.server.model.Clinician
 import org.opentele.server.model.Conference
 import org.opentele.server.model.ConferenceBloodPressureMeasurementDraft
 import org.opentele.server.model.ConferenceLungFunctionMeasurementDraft
 import org.opentele.server.model.ConferenceSaturationMeasurementDraft
+import org.opentele.server.model.DeviceOrigin
 import org.opentele.server.model.Patient
+import org.opentele.server.model.PendingConference
+import org.opentele.server.video.VideoConferenceService
 import spock.lang.Specification
 
 @TestFor(PatientConferenceMobileController)
-@Build([Patient, Clinician, Conference, ConferenceLungFunctionMeasurementDraft, ConferenceBloodPressureMeasurementDraft, ConferenceSaturationMeasurementDraft])
-@Mock([Patient, Clinician, Conference, ConferenceLungFunctionMeasurementDraft, ConferenceBloodPressureMeasurementDraft, ConferenceSaturationMeasurementDraft])
-class PatientConferenceMobileControllerSpec extends Specification{
+@Build([Patient, Clinician, Conference, PendingConference, ConferenceLungFunctionMeasurementDraft, ConferenceBloodPressureMeasurementDraft, ConferenceSaturationMeasurementDraft])
+@Mock([Patient, Clinician, Conference, PendingConference, ConferenceLungFunctionMeasurementDraft, ConferenceBloodPressureMeasurementDraft, ConferenceSaturationMeasurementDraft])
+class PatientConferenceMobileControllerSpec extends Specification {
 
-    def conferenceStateService = Mock(ConferenceStateService)
+    def videoConferenceService = Mock(VideoConferenceService)
 
     Patient patient
     Clinician clinician
 
     def setup() {
-        controller.conferenceStateService = conferenceStateService
+        controller.videoConferenceService = videoConferenceService
         clinician = Clinician.build()
     }
 
-    def "defers knowledge of patient's pending conference to other service, for asynchronous processing"() {
+    def "receives 404 if no pending conference exists"() {
         setup:
         setPatientAsUser()
 
@@ -36,8 +37,20 @@ class PatientConferenceMobileControllerSpec extends Specification{
         controller.patientHasPendingConference()
 
         then:
-        1 * conferenceStateService.add(_, patient.id, _)
-        response.text == ''
+        response.status == 404
+    }
+
+    def "receives pending conference when one exists"() {
+        setup:
+        setPatientAsUser()
+        videoConferenceService.metaClass.userIsAlreadyPresentInOwnRoom = { user, password -> true }
+        PendingConference.build(clinician: clinician, patient: patient, roomKey: "a_room_key_42")
+
+        when:
+        controller.patientHasPendingConference()
+
+        then:
+        response.text == '{"roomKey":"a_room_key_42","serviceUrl":"null"}'
     }
 
     def 'knows that patient has no pending measurements when no unfinished conferences exist'() {
@@ -92,7 +105,11 @@ class PatientConferenceMobileControllerSpec extends Specification{
         when:
         request.JSON = [
             type: 'LUNG_FUNCTION',
-            deviceId: '123987abc',
+            origin: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]],
             measurement: [
                 fev1: 3.6,
                 fev6: 5.7,
@@ -108,7 +125,9 @@ class PatientConferenceMobileControllerSpec extends Specification{
         response.status == 200
         pendingLungFunctionMeasurement.automatic
         !pendingLungFunctionMeasurement.waiting
-        pendingLungFunctionMeasurement.deviceId == '123987abc'
+        pendingLungFunctionMeasurement.origin instanceof DeviceOrigin
+        pendingLungFunctionMeasurement.origin.primaryIdentifier.type == 'serial_number'
+        pendingLungFunctionMeasurement.origin.primaryIdentifier.value == '501577857'
         pendingLungFunctionMeasurement.fev1 == 3.6
         pendingLungFunctionMeasurement.fev6 == 5.7
         pendingLungFunctionMeasurement.fev1Fev6Ratio == 0.632
@@ -128,7 +147,11 @@ class PatientConferenceMobileControllerSpec extends Specification{
         when:
         request.JSON = [
             type: 'BLOOD_PRESSURE',
-            deviceId: '456123cba',
+            origin: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]],
             measurement: [
                 systolic: 123,
                 diastolic: 57,
@@ -142,7 +165,9 @@ class PatientConferenceMobileControllerSpec extends Specification{
         response.status == 200
         pendingBloodPressureMeasurement.automatic
         !pendingBloodPressureMeasurement.waiting
-        pendingBloodPressureMeasurement.deviceId == '456123cba'
+        pendingBloodPressureMeasurement.origin instanceof DeviceOrigin
+        pendingBloodPressureMeasurement.origin.primaryIdentifier.type == 'serial_number'
+        pendingBloodPressureMeasurement.origin.primaryIdentifier.value == '501577857'
         pendingBloodPressureMeasurement.systolic == 123
         pendingBloodPressureMeasurement.diastolic == 57
         pendingBloodPressureMeasurement.pulse == 45
@@ -160,7 +185,11 @@ class PatientConferenceMobileControllerSpec extends Specification{
         when:
         request.JSON = [
             type: 'SATURATION',
-            deviceId: 'abc.123',
+            origin: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]],
             measurement: [
                 saturation: 98,
                 pulse: 57,
@@ -172,7 +201,7 @@ class PatientConferenceMobileControllerSpec extends Specification{
         response.status == 200
         pendingSaturationMeasurement.automatic
         !pendingSaturationMeasurement.waiting
-        pendingSaturationMeasurement.deviceId == 'abc.123'
+        pendingSaturationMeasurement.origin instanceof DeviceOrigin
         pendingSaturationMeasurement.saturation == 98
         pendingSaturationMeasurement.pulse == 57
     }

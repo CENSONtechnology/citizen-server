@@ -6,60 +6,57 @@ grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 grails.project.target.level = 1.7
 grails.project.source.level = 1.7
-//grails.project.war.file = "target/${appName}-${appVersion}.war"
 grails.project.war.file = "target/${appName}.war"
 
-// Plugin stuff
-//grails.plugin.location.kihauditlog = "../kih-auditlog"
+// Private OpenTele server plugin repository
+grails.project.ivy.authentication = {
+    repositories {
+        mavenRepo "https://repository.oth.io/nexus/content/repositories/opentele-server-plugins/"
 
-if(Environment.current == Environment.DEVELOPMENT ||
-        Environment.current == Environment.TEST) {
-    grails.server.port.http = 8090
+    }
+
+    def repoUsername = System.getProperty('oth.repo.username')
+    def repoPassword = System.getProperty('oth.repo.password')
+
+    if (!repoUsername) {
+        println "Could not find repo username!"
+    }
+    if (!repoPassword) {
+        println "Could not find repo password!"
+    }
+
+    credentials {
+        realm = "Sonatype Nexus Repository Manager"
+        host = "repository.oth.io"
+        username = repoUsername
+        password = repoPassword
+    }
 }
 
-grails.project.fork = []
-//forkConfig = [maxMemory: 1024, minMemory: 64, debug: false, maxPerm: 256]
-//grails.project.fork = [
-//        test: forkConfig, // configure settings for the test-app JVM
-//        run: forkConfig, // configure settings for the run-app JVM
-//        war: forkConfig, // configure settings for the run-war JVM
-//        console: forkConfig // configure settings for the Swing console JVM
-//]
-
 grails.project.dependency.resolution = {
-    // inherit Grails' default dependencies
-    inherits("global") {
-        // uncomment to disable ehcache
-        // excludes 'ehcache'
-    }
-    log "verbose" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+
+    inherits("global") { }
+
+    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     checksums true // Whether to verify checksums on resolve
 
     def gebVersion = "0.10.0"
-    def seleniumVersion = "2.33.0"
+    def seleniumVersion = "2.43.1"
 
     repositories {
         inherits true // Whether to inherit repository definitions from plugins
+
         grailsPlugins()
         grailsHome()
         grailsCentral()
         mavenCentral()
-
-        // uncomment these to enable remote dependency resolution from public Maven repositories
-        //mavenCentral()
         mavenLocal()
-        //mavenRepo "http://snapshots.repository.codehaus.org"
 
-        mavenCentral()
-        grailsCentral()
-        mavenRepo name: "SilverbulletExt", root: "http://ci.silverbullet.dk/artifactory/ext-release-local"
+        mavenRepo "https://repository.oth.io/nexus/content/repositories/build-dependencies/"
         mavenRepo "http://download.java.net/maven/2/"
-
-        //mavenRepo "http://download.java.net/maven/2/"
-        //mavenRepo "http://repository.jboss.com/maven2/"
     }
+
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
         if(Environment.current == Environment.DEVELOPMENT) {
             runtime 'org.grails.plugins:profiler:0.5'
@@ -79,6 +76,7 @@ grails.project.dependency.resolution = {
             //exclude "xercesImpl"
             exclude "axis-jaxrpc"
         }
+
         test("org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion")
         test("org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion")
         test("org.seleniumhq.selenium:selenium-support:$seleniumVersion")
@@ -94,25 +92,23 @@ grails.project.dependency.resolution = {
 
         // Included due to ecludes for the :rest:0.7 plugin which includes version 4.0.x
         runtime("org.apache.httpcomponents:httpclient:4.1.2",
-                 "org.apache.httpcomponents:httpcore:4.1.3")
+                "org.apache.httpcomponents:httpcore:4.1.3")
 
         compile 'cglib:cglib:3.1'
-
         runtime 'commons-io:commons-io:2.4'
     }
 
     plugins {
         runtime ":build-test-data:2.2.2"
-
-        //runtime ":hibernate:3.6.10.18"
         runtime ":hibernate4:4.3.5.5"
         runtime ":jquery:1.11.0.2"
         runtime ":resources:1.2.8"
         runtime ":kih-auditlog:1.7"
         compile ":webflow:2.1.0"
         compile ":quartz:1.0.2"
-
         build ":tomcat:7.0.54"
+        runtime "io.oth:medicine-list-citizen:2.12.0"
+        runtime "io.oth:vidyo:2.12.0"
 
         runtime ":codenarc:0.22"
         runtime ":famfamfam:1.0.1"
@@ -129,23 +125,22 @@ grails.project.dependency.resolution = {
         test ":code-coverage:2.0.3-3"
 
         runtime ":cors:1.1.6"
-        
-        compile ":opentele-server-core-plugin:0.1"
     }
+}
+
+if (Environment.current == Environment.DEVELOPMENT || Environment.current == Environment.TEST) {
+    grails.server.port.http = 8090
 }
 
 codenarc.reports = {
 
-// Each report definition is of the form: // REPORT-NAME(REPORT-TYPE) { // PROPERTY-NAME = PROPERTY-VALUE // PROPERTY-NAME = PROPERTY-VALUE // }
-
     MyXmlReport('xml') { // The report name "MyXmlReport" is user-defined; Report type is 'xml'
-    outputFile = 'target/test-reports/CodeNarc-Report.xml' // Set the 'outputFile' property of the (XML) Report
+        outputFile = 'target/test-reports/CodeNarc-Report.xml' // Set the 'outputFile' property of the (XML) Report
     }
 
     MyXmlReport('html') { // The report name "MyXmlReport" is user-defined; Report type is 'xml'
         outputFile = 'target/test-reports/CodeNarc-Report.html' // Set the 'outputFile' property of the (XML) Report
     }
-
 }
 
 codenarc.properties = {
@@ -156,15 +151,9 @@ codenarc.properties = {
 
 }
 
-codenarc.ruleSetFiles = ["rulesets/basic.xml,rulesets/exceptions.xml, rulesets/imports.xml,rulesets/grails.xml, rulesets/unused.xml, rulesets/size.xml"]
+codenarc.ruleSetFiles = [
+        "rulesets/basic.xml,rulesets/exceptions.xml, rulesets/imports.xml,rulesets/grails.xml, rulesets/unused.xml, rulesets/size.xml"
+]
 
-def vidyoPluginDirectory = '../opentele-server-vidyo-plugin'
-if (new File(vidyoPluginDirectory).exists()) {
-    grails.plugin.location.'VidyoGrailsPlugin' = vidyoPluginDirectory
-}
-
-def medicineListPluginDirectory = '../opentele-server-medicine-list-plugin/citizen'
-if (new File(medicineListPluginDirectory).exists()) {
-    grails.plugin.location.'MedicineListCitizenGrailsPlugin' = medicineListPluginDirectory
-}
-
+def corePluginDirectory = '../opentele-server-core-plugin'
+grails.plugin.location.'OpenteleServerCorePlugin' = corePluginDirectory

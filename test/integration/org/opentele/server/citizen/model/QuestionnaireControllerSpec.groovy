@@ -1,6 +1,7 @@
 package org.opentele.server.citizen.model
 
 import org.opentele.server.core.test.AbstractIntegrationSpec
+import org.opentele.server.model.DeviceOrigin
 import org.opentele.server.model.Measurement
 import org.opentele.server.model.MeasurementType
 import org.opentele.server.model.Patient
@@ -50,7 +51,11 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
             systolic:[type:'Integer', value:systolic.toString()],
             diastolic:[type:'Integer', value:diastolic.toString()],
             pulse:[type:'Integer', value:pulse.toString()],
-            deviceId:[type:'String', value:"FFFF2D65"]
+            origin:[type:'Object', value: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]]]
         ]
         if (meanArterialPressure != null) { output['meanArterialPressure'] = [type:'Integer', value:meanArterialPressure.toString()] }
         withOutput('BloodPressureDeviceNode', output)
@@ -63,9 +68,9 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
         bloodPressureMeasurement.systolic == systolic
         bloodPressureMeasurement.diastolic == diastolic
         bloodPressureMeasurement.meanArterialPressure == meanArterialPressure
-        bloodPressureMeasurement.deviceIdentification == "FFFF2D65"
+        bloodPressureMeasurement.origin instanceof DeviceOrigin
         pulseMeasurement.value == pulse
-        pulseMeasurement.deviceIdentification == "FFFF2D65"
+        pulseMeasurement.origin instanceof DeviceOrigin
         measurementNodeResult.severity == expectedSeverity
 
         where:
@@ -91,7 +96,11 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
             systolic:[type:'Integer', value:'150'],
             diastolic:[type:'Integer', value:'91'],
             meanArterialPressure:[type:'Integer', value:'101'],
-            deviceId:[type:'String', value:"ABCD1234"]
+            origin:[type:'Object', value: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]]]
         ])
         def (stillOldMeasurement, bloodPressureMeasurement) = newestMeasurements(2)
 
@@ -101,7 +110,7 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
         bloodPressureMeasurement.systolic == 150
         bloodPressureMeasurement.diastolic == 91
         bloodPressureMeasurement.meanArterialPressure == 101
-        bloodPressureMeasurement.deviceIdentification == "ABCD1234"
+        bloodPressureMeasurement.origin instanceof DeviceOrigin
     }
 
     def 'will accept UA delay value for CTG measurements'() {
@@ -182,15 +191,18 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
         inQuestionnaire 'Vejning'
         withOutput('WeightDeviceNode', [
             weight:[type:'Float', value:value],
-            deviceId:[type:'String', value:"1234"],
-
+            origin:[type:'Object', value: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]]]
         ])
         def weightMeasurement = newestMeasurement()
 
         then:
         controller.response.json[0][0].toString() == response
         weightMeasurement.value == value
-        weightMeasurement.deviceIdentification == "1234"
+        weightMeasurement.origin instanceof DeviceOrigin
 
         where:
         value | response
@@ -226,7 +238,11 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
             fef2575:[type:'Float', value:fef2575.toString()],
             goodTest:[type:'Boolean', value:true],
             softwareVersion:[type:'Integer', value:933],
-            deviceId:[type:'String', value: "00012345678"]
+            origin:[type:'Object', value: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]]]
         ])
         def lungFunctionMeasurement = newestMeasurement()
 
@@ -239,7 +255,7 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
         lungFunctionMeasurement.fef2575 == fef2575
         lungFunctionMeasurement.isGoodTest
         lungFunctionMeasurement.fevSoftwareVersion == 933
-        lungFunctionMeasurement.deviceIdentification == "00012345678"
+        lungFunctionMeasurement.origin instanceof DeviceOrigin
 
         where:
         fev1 | fev6 | fev1Fev6Ratio | fef2575
@@ -256,16 +272,20 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
         withOutput('SaturationDeviceNode', [
             saturation:[type:'Integer', value:saturation],
             pulse:[type:'Integer', value:pulse],
-            deviceId:[type:'String', value:"123458"]
+            origin:[type:'Object', value: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]]]
         ])
         def (saturationMeasurement, pulseMeasurement) = newestMeasurements(2)
 
         then:
         controller.response.json[0][0].toString() == 'success'
         saturationMeasurement.value == saturation
-        saturationMeasurement.deviceIdentification == "123458"
+        saturationMeasurement.origin instanceof DeviceOrigin
         pulseMeasurement.value == pulse
-        pulseMeasurement.deviceIdentification == "123458"
+        pulseMeasurement.origin instanceof DeviceOrigin
 
         where:
         saturation | pulse
@@ -280,7 +300,11 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
         inQuestionnaire 'Saturation'
         withOutput('SaturationDeviceNode', [
             saturation:[type:'Integer', value:97],
-            deviceId:[type:'String', value: "123xab"]
+            origin:[type:'Object', value: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]]]
         ])
         def (stillOldMeasurement, saturationMeasurement) = newestMeasurements(2)
 
@@ -288,14 +312,18 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
         stillOldMeasurement == oldMeasurement
         controller.response.json[0][0].toString() == 'success'
         saturationMeasurement.value == 97.0
-        saturationMeasurement.deviceIdentification == "123xab"
+        saturationMeasurement.origin instanceof DeviceOrigin
     }
 
     def 'can upload blood sugar result'() {
         when:
         inQuestionnaire 'Blodsukker'
         withOutput('BloodSugarDeviceNode', [
-            deviceId:[type:'String', value: "123xab"],
+            origin:[type:'Object', value: [device_measurement: [
+                primary_device_identifier: [
+                    serial_number: "501577857"
+                ]
+            ]]],
             bloodSugarMeasurements:[
                 type:'BloodSugarMeasurements',
                 value:[
@@ -334,14 +362,14 @@ class QuestionnaireControllerSpec extends AbstractIntegrationSpec {
         !firstBloodSugarMeasurement.isAfterMeal
         !firstBloodSugarMeasurement.otherInformation
         firstBloodSugarMeasurement.value == 5.6
-        firstBloodSugarMeasurement.deviceIdentification == '123xab'
+        firstBloodSugarMeasurement.origin instanceof DeviceOrigin
 
         secondBloodSugarMeasurement.time == at(2013, Calendar.MAY, 24, 13, 0, 20)
         !secondBloodSugarMeasurement.isBeforeMeal
         secondBloodSugarMeasurement.isAfterMeal
         secondBloodSugarMeasurement.otherInformation
         secondBloodSugarMeasurement.value == 6.5
-        secondBloodSugarMeasurement.deviceIdentification == '123xab'
+        secondBloodSugarMeasurement.origin instanceof DeviceOrigin
     }
 
     def 'ignores duplicate blood sugar measurements'() {

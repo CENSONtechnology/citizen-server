@@ -1,12 +1,15 @@
 package org.opentele.builders
 
+import org.opentele.server.core.model.types.BloodInUrineValue
 import org.opentele.server.core.model.types.GlucoseInUrineValue
-import org.opentele.server.core.model.types.MeasurementTypeName
+import org.opentele.server.core.model.types.LeukocytesInUrineValue
+import org.opentele.server.core.model.types.NitriteInUrineValue
 import org.opentele.server.core.model.types.ProteinValue
 import org.opentele.server.model.Measurement
 import org.opentele.server.model.MeasurementType
 import org.opentele.server.model.patientquestionnaire.CompletedQuestionnaire
 import org.opentele.server.model.patientquestionnaire.MeasurementNodeResult
+import org.opentele.server.core.model.types.MeasurementTypeName
 
 class MeasurementBuilder {
     private MeasurementTypeName measurementTypeName
@@ -91,34 +94,65 @@ class MeasurementBuilder {
                 return buildCtgMeasurement(patient, measurementType)
             case MeasurementTypeName.PULSE:
             case MeasurementTypeName.LUNG_FUNCTION:
+            case MeasurementTypeName.TEMPERATURE:
+            case MeasurementTypeName.WEIGHT:
+            case MeasurementTypeName.HEMOGLOBIN:
+            case MeasurementTypeName.SATURATION:
+            case MeasurementTypeName.CRP:
                 return buildSimpleMeasurement(patient, measurementType)
             case MeasurementTypeName.BLOODSUGAR:
                 return buildBloodsugarMeasurement(patient, measurementType)
             case MeasurementTypeName.CONTINUOUS_BLOOD_SUGAR_MEASUREMENT:
                 return buildContinuousBloodSugarMeasurement(patient, measurementType)
             case MeasurementTypeName.URINE:
-                return buildUrineMeasurement(patient, measurementType)
+                return buildUrineProteinMeasurement(patient, measurementType)
+            case MeasurementTypeName.URINE_BLOOD:
+                return buildUrineBloodMeasurement(patient, measurementType)
             case MeasurementTypeName.URINE_GLUCOSE:
                 return buildUrineGlucoseMeasurement(patient, measurementType)
+            case MeasurementTypeName.URINE_LEUKOCYTES:
+                return buildUrineLeukocytesMeasurement(patient, measurementType)
+            case MeasurementTypeName.URINE_NITRITE:
+                return buildUrineNitriteMeasurement(patient, measurementType)
+            case MeasurementTypeName.URINE_COMBI:
+                return null;
             default:
-                throw new RuntimeException('No measurement type name specified')
+                throw new RuntimeException('Unknown measurement type name specified:' + measurementTypeName)
         }
     }
 
-    private Measurement buildSimpleMeasurement(patient, measurementType) {
-        def result = Measurement.build(patient: patient, measurementType: measurementType, value: value, time: time)
+    private Measurement buildUrineProteinMeasurement(patient, measurementType) {
+        def result = Measurement.build(patient: patient, measurementType: measurementType, protein: ProteinValue.PLUSMINUS, time: time)
         result.save(failOnError: true)
         result
     }
 
-    private Measurement buildUrineMeasurement(patient, measurementType) {
-        def result = Measurement.build(patient: patient, measurementType: measurementType, protein: ProteinValue.NEGATIVE, time: time)
+    private Measurement buildUrineBloodMeasurement(patient, measurementType) {
+        def result = Measurement.build(patient: patient, measurementType: measurementType, bloodInUrine: BloodInUrineValue.NEGATIVE, time: time)
         result.save(failOnError: true)
         result
     }
 
     private Measurement buildUrineGlucoseMeasurement(patient, measurementType) {
-        def result = Measurement.build(patient: patient, measurementType: measurementType, glucoseInUrine: GlucoseInUrineValue.PLUS_FOUR, time: time)
+        def result = Measurement.build(patient: patient, measurementType: measurementType, glucoseInUrine: GlucoseInUrineValue.NEGATIVE, time: time)
+        result.save(failOnError: true)
+        result
+    }
+
+    private Measurement buildUrineLeukocytesMeasurement(patient, measurementType) {
+        def result = Measurement.build(patient: patient, measurementType:measurementType, leukocytesInUrine: LeukocytesInUrineValue.NEGATIVE, time: time)
+        result.save(failOnError: true)
+        result
+    }
+
+    private Measurement buildUrineNitriteMeasurement(patient, measurementType) {
+        def result = Measurement.build(patient: patient, measurementType: measurementType, nitriteInUrine: NitriteInUrineValue.NEGATIVE, time: time)
+        result.save(failOnError: true)
+        result
+    }
+
+    private Measurement buildSimpleMeasurement(patient, measurementType) {
+        def result = Measurement.build(patient: patient, measurementType: measurementType, value: value, time: time)
         result.save(failOnError: true)
         result
     }
@@ -139,9 +173,9 @@ class MeasurementBuilder {
             measurementNodeResult.save(failOnError: true)
             measurementNodeResult.nodeIgnored = true
 
-            result = Measurement.build(patient: patient, measurementType: measurementType, systolic: systolic, diastolic: diastolic, meanArterialPressure: 0.0, measurementNodeResult: measurementNodeResult, time: time)
+            result = Measurement.build(patient: patient, measurementType: measurementType, systolic: systolic, diastolic: diastolic, measurementNodeResult: measurementNodeResult, time: time)
         } else {
-            result = Measurement.build(patient: patient, measurementType: measurementType, systolic: systolic, diastolic: diastolic, meanArterialPressure: 0.0, time: time)
+            result = Measurement.build(patient: patient, measurementType: measurementType, systolic: systolic, diastolic: diastolic, time: time)
         }
 
         result.save(failOnError: true)
@@ -149,7 +183,7 @@ class MeasurementBuilder {
     }
 
     private Measurement buildBloodsugarMeasurement(patient, measurementType) {
-        def result = Measurement.build(patient: patient, measurementType: measurementType, value: value, time: time, isBeforeMeal: isBeforeMeal, isAfterMeal: isAfterMeal, isControlMeasurement: true, isOutOfBounds: false)
+        def result = Measurement.build(patient: patient, measurementType: measurementType, value: value, time: time, isBeforeMeal: isBeforeMeal, isAfterMeal: isAfterMeal)
         result.save(failOnError: true)
         result
     }

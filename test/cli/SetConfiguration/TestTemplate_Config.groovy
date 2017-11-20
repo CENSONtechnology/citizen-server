@@ -1,6 +1,6 @@
 import org.apache.log4j.DailyRollingFileAppender
 
-grails.config.locations = ["file:${userHome}/.opentele/citizen-config.properties"]
+grails.config.locations = ["file:${userHome}/.opentele/datamon-citizen-demo-config.properties"]
 
 logging.suffix = ""
 
@@ -57,6 +57,15 @@ grails.exceptionresolver.params.exclude = ['password']
 // enable query caching by default
 grails.hibernate.cache.queries = true
 
+// TODO: Kun relevant på serverside, eller?
+video {
+    enabled = false
+    connection {
+        timeoutMillis = 5 * 60 * 1000 // 5 minutes
+        asyncTimeoutMillis = 6 * 60 * 1000 // 6 minutes
+    }
+}
+
 help {
     image {
         contentTypes = ["image/jpeg","image/pjpeg","image/png","image/x-png"]
@@ -67,6 +76,8 @@ help {
 }
 
 defaultLocale = new Locale("da", "DK")
+// TODO: Er denne kun server?
+measurement.results.tables.css = 'measurement_results_tables.css'
 
 // CORS setup
 cors.url.pattern = '*'
@@ -83,12 +94,183 @@ grails.plugin.databasemigration.updateOnStart = false
 environments {
     development {
         grails.logging.jul.usebridge = true
+
+        // TODO : SKal tilpasses for citizen server
+        // Support for remote tomcat deployment to tomcat development server
+        tomcat.deploy.username="deployer"
+        tomcat.deploy.password="iequiemuuc5ooBuo"
+        tomcat.deploy.url="http://opentele-devel.silverbullet.dk/manager/text"
+
+        video.enabled = true
+        video.serviceURL = 'https://silverbullet.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://silverbullet.vconf.dk/services/VidyoPortalGuestService/'
+
+        running.ctg.messaging.enabled = true
+        milou.realtimectg.url = 'http://195.67.117.70:2626/Milou/OpenTeleRT'
+        milou.realtimeRun = true
+        milou.realtimeRepeatIntervalMillis = 10000
     }
     performance {
-        grails.logging.jul.usebridge = true
+        milou.realtimectg.url = 'http://195.67.117.70:2626/Milou/OpenTeleRT'
+        milou.realtimeRun = true
+        milou.realtimeRepeatIntervalMillis = 10000
+        running.ctg.messaging.enabled = true
     }
     test {
+        milou.realtimectg.url = 'http://195.67.117.70:2626/Milou/OpenTeleRT'
+        milou.realtimeRun = true
+        milou.realtimeRepeatIntervalMillis = 10000
+        running.ctg.messaging.enabled = true
+    }
+    datamon_test {
+        measurement.results.tables.css = 'measurement_results_tables_rn.css'
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-test.rn.dk/opentele-citizen-server"
+
+        milou.realtimectg.url = 'http://195.67.117.70:2626/Milou/OpenTeleRT'
+        milou.realtimeRun = true
+        milou.realtimeRepeatIntervalMillis = 10000
+
+        video.enabled = true
+        video.serviceURL = 'https://silverbullet.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://silverbullet.vconf.dk/services/VidyoPortalGuestService/'
+
+        running.ctg.messaging.enabled = true
+    }
+    winbuild {
+        measurement.results.tables.css = 'measurement_results_tables_rn.css'
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "http://opentele-integ.silverbullet.dk/opentele-citizen-server"
+
+
+        video.enabled = true
+        video.serviceURL = 'https://silverbullet.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://silverbullet.vconf.dk/services/VidyoPortalGuestService/'
+
+        milou.realtimectg.url = 'http://195.67.117.70:2626/Milou/OpenTeleRT'
+        milou.realtimeRun = true
+        milou.realtimeRepeatIntervalMillis = 10000
+
+        running.ctg.messaging.enabled = true
+    }
+    demoimage {
+        defaultLocale = Locale.US
+
+        grails.logging.jul.usebridge = false
+
+        video.enabled = true
+        video.serviceURL = 'https://silverbullet.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://silverbullet.vconf.dk/services/VidyoPortalGuestService/'
+
+        running.ctg.messaging.enabled = true
+    }
+    deutsche_telekom_test {
+        defaultLocale = Locale.US
+
+        grails.logging.jul.usebridge = false
+
+        video.enabled = true
+        video.serviceURL = 'https://silverbullet.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://silverbullet.vconf.dk/services/VidyoPortalGuestService/'
+
+        running.ctg.messaging.enabled = true
+    }
+
+    production {
         grails.logging.jul.usebridge = true
+
+        tomcat.deploy.username="deployer"
+        tomcat.deploy.password="iequiemuuc5ooBuo"
+        tomcat.deploy.url="http://opentele-test.silverbullet.dk/manager/text"
+    }
+    nord_production {
+        measurement.results.tables.css = 'measurement_results_tables_rn.css'
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-rn.rn.dk/opentele-citizen-server"
+    }
+    midt_production {
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-rm.rn.dk/opentele-citizen-server"
+
+        running.ctg.messaging.enabled = true
+
+    }
+    hovedstaden_production {
+        grails.session.timeout.default = 60
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-rh.rn.dk/opentele-citizen-server"
+
+        // TODO: Skal dette være i citizen serveren?
+        video.enabled = true
+        video.serviceURL = 'https://regionh.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://regionh.vconf.dk/services/VidyoPortalGuestService/'
+    }
+
+    hovedstaden_test {
+        grails.session.timeout.default = 60
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-tst-rh.rn.dk/opentele-citizen"
+
+        // TODO: Skal dette være i citizen serveren?
+        video.enabled = true
+        video.serviceURL = 'https://regionh.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://regionh.vconf.dk/services/VidyoPortalGuestService/'
+
+        help {
+            image {
+                uploadPath = "C:/billeder"
+                providedImagesPath = "C:/billeder"
+            }
+        }
+    }
+
+    nord_staging {
+        measurement.results.tables.css = 'measurement_results_tables_rn.css'
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-stag-rn.rn.dk/opentele-citizen-server"
+    }
+    nord_education {
+        measurement.results.tables.css = 'measurement_results_tables_rn.css'
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-edu-rn.rn.dk"
+    }
+    midt_staging {
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-stag-rm.rn.dk/opentele-citizen-server"
+        running.ctg.messaging.enabled = true
+
+
+        milou.realtimectg.url = 'http://195.67.117.70:2626/Milou/OpenTeleRT'
+        milou.realtimeRun = true
+        milou.realtimeRepeatIntervalMillis = 10000
+
+    }
+    hovedstaden_staging {
+        grails.session.timeout.default = 60
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-stag-rh.rn.dk/opentele-citizen-server"
+
+        video.enabled = true
+        video.serviceURL = 'https://regionh.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://regionh.vconf.dk/services/VidyoPortalGuestService/'
     }
 }
 
@@ -142,6 +324,8 @@ log4j = {
             debug 'grails.app',
                     'org.opentele',
                     'grails.app.jobs'
+//            debug 'org.hibernate.SQL'
+//           trace 'org.hibernate.type'
         }
         performance {
             debug 'grails.app',
@@ -149,6 +333,46 @@ log4j = {
         }
         test {
             debug 'grails.app',
+                    'org.opentele'
+        }
+        datamon_test {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        winbuild {
+            debug   'grails.app',
+                    'org.opentele'
+        }
+        nord_production {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        midt_production {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        hovedstaden_production {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        nord_staging {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        nord_education {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        midt_staging {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        hovedstaden_staging {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        hovedstaden_test {
+            info    'grails.app',
                     'org.opentele'
         }
     }

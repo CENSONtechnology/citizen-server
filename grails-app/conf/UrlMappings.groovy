@@ -3,6 +3,7 @@ import grails.util.Environment
 class UrlMappings {
 
 	static mappings = {
+
 		name root: "/" {
             controller = 'root'
             action = 'show'
@@ -37,11 +38,6 @@ class UrlMappings {
         "/rest/questionnaire/download/$id"(parseRequest:true){
             controller="questionnaireMobile"
             action = [GET:"download"]
-        }
-
-        "/rest/helpImage/$id"{
-            controller="helpImage"
-            action = [GET:"downloadimage"]
         }
 
         name password: "/rest/password/update"(parseRequest: true) {
@@ -95,11 +91,6 @@ class UrlMappings {
         "/rest/message/markAsRead"(parseRequest:true){
             controller = "patientMessage"
             action = [POST:"markAsRead"]
-        }
-
-        "/rest/realTimeCTG/save"(parseRequest:true) {
-            controller="RealTimeCTG"
-            action = [POST:"save"]
         }
 
         //For the meta controller

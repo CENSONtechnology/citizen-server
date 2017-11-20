@@ -6,13 +6,15 @@ import grails.plugin.springsecurity.annotation.Secured
 import org.opentele.server.core.model.ConferenceMeasurementDraftType
 import org.opentele.server.core.model.types.PermissionName
 import org.opentele.server.model.*
-
-import javax.servlet.AsyncContext
+import org.springframework.beans.factory.annotation.Value
 
 class PatientConferenceMobileController {
 
+    @Value('${video.client.serviceURL:null}')
+    String serviceUrl
+
     def springSecurityService
-    def conferenceStateService
+    def videoConferenceService
 
     // Patient
     @Secured(PermissionName.JOIN_VIDEO_CALL)
@@ -20,12 +22,26 @@ class PatientConferenceMobileController {
     def patientHasPendingConference() {
         def patient = currentPatient()
 
-        request.setAttribute('org.apache.catalina.ASYNC_SUPPORTED', true)
-        AsyncContext context = request.startAsync()
-        context.timeout = getAsyncTimeoutMillis();
-        conferenceStateService.add(new Date(), patient.id, context)
+        def pendingConferences = PendingConference.findAllByPatient patient
+        if (!pendingConferences) {
+            return render(status: 404)
+        }
+
+        def pendingConference = pendingConferences.find { pendingConference ->
+            Clinician clinician = pendingConference.clinician
+            clinician && clinicianHasJoinedRoom(clinician)
+        }
+
+        if (pendingConference) {
+            render([roomKey: pendingConference.roomKey, serviceUrl: serviceUrl] as JSON)
+        } else {
+            render(status: 404)
+        }
     }
 
+    private boolean clinicianHasJoinedRoom(Clinician clinician) {
+        videoConferenceService.userIsAlreadyPresentInOwnRoom(clinician.videoUser, clinician.videoPassword)
+    }
 
     // Patient
     @Secured(PermissionName.JOIN_VIDEO_CALL)
@@ -37,12 +53,12 @@ class PatientConferenceMobileController {
                 ConferenceMeasurementDraftType.BLOOD_PRESSURE,
                 ConferenceMeasurementDraftType.LUNG_FUNCTION,
                 ConferenceMeasurementDraftType.SATURATION)
-        if (waitingConferenceMeasurementDraft != null) {
-            def reply = [type: waitingConferenceMeasurementDraft.type.name()]
-            render reply as JSON
-        } else {
-            render [:] as JSON
-        }
+
+        def reply = (waitingConferenceMeasurementDraft != null) ?
+                [type: waitingConferenceMeasurementDraft.type.name()] :
+                [:]
+
+        render reply as JSON
     }
 
 
@@ -50,16 +66,17 @@ class PatientConferenceMobileController {
     @Secured(PermissionName.JOIN_VIDEO_CALL)
     def measurementFromPatient() {
         def patient = currentPatient()
+
         def measurementDetails = request.JSON
-        def measurementType = ConferenceMeasurementDraftType.find { it.name() == measurementDetails.type }
+        ConferenceMeasurementDraftType measurementType = ConferenceMeasurementDraftType.find { it.name() == measurementDetails.type }
         if (measurementType == null) {
             throw new IllegalArgumentException("Unknown measurement type: '${measurementDetails.type}'")
         }
 
-        def waitingConferenceMeasurementDraft = waitingConferenceMeasurementDraft(patient, measurementType)
+        ConferenceMeasurementDraft waitingConferenceMeasurementDraft = waitingConferenceMeasurementDraft(patient, measurementType)
         if (waitingConferenceMeasurementDraft == null) {
             // Don't update anything, and don't throw any exceptions
-            render ''
+            render [:] as JSON
             return
         }
 
@@ -77,9 +94,9 @@ class PatientConferenceMobileController {
                 throw new IllegalArgumentException("Unsupported automatic measurement type: '${measurementType}'")
         }
 
-        waitingConferenceMeasurementDraft.deviceId = measurementDetails.deviceId
+        waitingConferenceMeasurementDraft.origin = Origin.fromJson(measurementDetails.origin)
         waitingConferenceMeasurementDraft.waiting = false
-        render ''
+        render [:] as JSON
     }
 
     private static ConferenceMeasurementDraft waitingConferenceMeasurementDraft(Patient patient, ConferenceMeasurementDraftType... types) {
@@ -119,7 +136,4 @@ class PatientConferenceMobileController {
         Patient.findByUser(springSecurityService.currentUser)
     }
 
-    private long getAsyncTimeoutMillis() {
-        grailsApplication.config.video.connection.asyncTimeoutMillis
-    }
 }

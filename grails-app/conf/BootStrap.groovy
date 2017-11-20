@@ -1,5 +1,4 @@
 import grails.converters.JSON
-import opentele.server.citizen.ConferenceCallJob
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import org.opentele.server.core.util.CustomDomainClassJSONMarshaller
@@ -23,10 +22,6 @@ class BootStrap {
 
         // Setup marshaller
         JSONMarshallerUtil.registerCustomJSONMarshallers(grailsApplication)
-
-        if (Boolean.valueOf(grailsApplication.config.video.enabled)) {
-            ConferenceCallJob.schedule(1000, -1, [name: 'ConferenceCallJob', startDelay: 0])
-        }
     }
 
     private renderResponseFiltersMustBeLastInPipeLine(allFilters) {

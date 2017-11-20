@@ -49,12 +49,10 @@ class MeasurementsControllerSpec extends Specification {
         patient.user = new User()
 
         completedQuestionnaire = new CompletedQuestionnaireBuilder().forPatient(patient).build()
-        pulseMeasurementType = new MeasurementTypeBuilder().ofType(MeasurementTypeName.PULSE).build()
-        urineMeasurementType = new MeasurementTypeBuilder().ofType(MeasurementTypeName.URINE).build()
-        urineGlucoseMeasurementType = new MeasurementTypeBuilder().ofType(MeasurementTypeName.URINE_GLUCOSE).build()
-        bloodSugarGlucoseMeasurementType = new MeasurementTypeBuilder().ofType(MeasurementTypeName.BLOODSUGAR).build()
-        bloodPressureGlucoseMeasurementType = new MeasurementTypeBuilder().ofType(MeasurementTypeName.BLOOD_PRESSURE).build()
-        cgmMeasurementType = new MeasurementTypeBuilder().ofType(MeasurementTypeName.CONTINUOUS_BLOOD_SUGAR_MEASUREMENT).build()
+
+        MeasurementTypeName.values().each { def type ->
+            new MeasurementTypeBuilder().ofType(type).build();
+        }
 
         mockSpringSecurityService = mockFor(SpringSecurityService)
         mockSpringSecurityService.metaClass.getCurrentUser = { ->

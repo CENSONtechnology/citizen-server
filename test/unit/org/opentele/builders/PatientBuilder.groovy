@@ -7,7 +7,7 @@ import org.opentele.server.core.model.types.PatientState
 import org.opentele.server.core.model.types.Sex
 
 class PatientBuilder {
-    def static cprCounter = 1000000000
+    def static cprCounter = 1000010000
     def firstName = 'Mette'
     def lastName ='Andersen'
     def sex =  Sex.FEMALE

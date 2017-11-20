@@ -2,7 +2,6 @@ package org.opentele.server.citizen
 
 import grails.buildtestdata.mixin.Build
 import grails.test.mixin.*
-import org.junit.*
 import org.opentele.builders.PatientBuilder
 import org.opentele.server.model.Department
 import org.opentele.server.model.Message
@@ -78,7 +77,7 @@ class CitizenMessageServiceSpec extends Specification {
         def available = service.isMessagesAvailableTo(patient)
 
         then:
-        available == false
+        !available
     }
 
     void "when messaging is enabled for at least one patient groups, patient have access to messages"() {
@@ -90,7 +89,7 @@ class CitizenMessageServiceSpec extends Specification {
         def available = service.isMessagesAvailableTo(patient)
 
         then:
-        available == true
+        available
     }
 
     def setupPatientGroupForDepartment(messagingDisabled, name = "SomeDepartment") {

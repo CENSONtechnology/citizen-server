@@ -4,6 +4,7 @@ import grails.plugin.springsecurity.annotation.Secured
 import org.opentele.server.core.model.types.MeasurementFilterType
 import org.opentele.server.core.model.types.MeasurementTypeName
 import org.opentele.server.core.model.types.PermissionName
+import org.opentele.server.core.util.MeasurementOrderUtil
 import org.opentele.server.core.util.TimeFilter
 import org.opentele.server.model.Measurement
 import org.opentele.server.model.Patient
@@ -29,16 +30,10 @@ class MeasurementsController {
         def patient = Patient.findByUser(user)
 
         def availableMeasurements = citizenMeasurementService.dataForTables(patient, TimeFilter.all())
-
         def measurements = []
 
         availableMeasurements.each() {
             def type = it.type.toString().toLowerCase()
-            if (it.type.name() in [MeasurementTypeName.URINE_BLOOD.name(),
-                            MeasurementTypeName.URINE_NITRITE.name(),
-                            MeasurementTypeName.URINE_LEUKOCYTES.name()]) {
-                return
-            }
 
             measurements << ['name': type,
                              'links': [
@@ -124,6 +119,15 @@ class MeasurementsController {
             case MeasurementTypeName.URINE_GLUCOSE:
                 return ['timestamp': measurement.time,
                         'measurement': measurement.glucoseInUrine.value()]
+            case MeasurementTypeName.URINE_BLOOD:
+                return ['timestamp': measurement.time,
+                        'measurement': measurement.bloodInUrine.value()]
+            case MeasurementTypeName.URINE_LEUKOCYTES:
+                return ['timestamp': measurement.time,
+                        'measurement': measurement.leukocytesInUrine.value()]
+            case MeasurementTypeName.URINE_NITRITE:
+                return ['timestamp': measurement.time,
+                        'measurement': measurement.nitriteInUrine.value()]
             default:
                 return ['timestamp': measurement.time,
                         'measurement': measurement.value]

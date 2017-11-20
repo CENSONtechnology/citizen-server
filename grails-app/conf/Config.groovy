@@ -1,10 +1,6 @@
 import org.apache.log4j.DailyRollingFileAppender
 
-grails.config.locations = [
-    "file:${userHome}/.opentele/citizen.properties",
-    "file:/etc/opentele/citizen.properties",
-    "file:c:/kihdatamon/settings/datamon-citizen-config.properties"
-]
+grails.config.locations = ["file:${userHome}/.opentele/citizen.properties", "file:/etc/opentele/citizen.properties", "file:/etc/opentele/citizen-logging-config.groovy", "file:c:/kihdatamon/settings/datamon-citizen-config.properties"]
 
 logging.suffix = ""
 
@@ -63,19 +59,20 @@ grails.hibernate.cache.queries = false
 
 video {
     enabled = false
-    connection {
-        timeoutMillis = 5 * 60 * 1000 // 5 minutes
-        asyncTimeoutMillis = 6 * 60 * 1000 // 6 minutes
-    }
 }
 
 help {
     image {
         contentTypes = ["image/jpeg","image/pjpeg","image/png","image/x-png"]
         uploadPath = "../helpimages" //In production this path should be configured to a full local path. NOT a path relatvie to web-app!
-        providedImagesPath = "../helpimages"
+        providedImagesPath = "helpimg-upload"
         overwriteExistingFiles = true
     }
+}
+
+continuousCtg {
+    enabled = false
+    url = ""
 }
 
 defaultLocale = new Locale("da", "DK")
@@ -91,21 +88,163 @@ grails.plugin.databasemigration.changelogLocation = "$pluginDir/grails-app/migra
 grails.plugin.databasemigration.dropOnStart = false
 grails.plugin.databasemigration.updateOnStart = false
 
-milou.realtimectg.maxPerPatient = 100
-
 auditLog.sessionAvailable = false
 
 // set per-environment serverURL stem for creating absolute links
 environments {
 	development {
 		grails.logging.jul.usebridge = true
+
+		// TODO : Skal tilpasses for citizen server
+		// Support for remote tomcat deployment to tomcat development server
+		tomcat.deploy.username="deployer"
+		tomcat.deploy.password="iequiemuuc5ooBuo"
+		tomcat.deploy.url="http://opentele-devel.silverbullet.dk/manager/text"
+
+        video.enabled = true
+
+        video.serviceURL = 'https://silverbullet.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://silverbullet.vconf.dk/services/VidyoPortalGuestService/'
+        video.client.version = 2
+
+        //video.portalURL = 'http://silverbullet.medisat.dk/'
+        //video.serviceURL = 'http://silverbullet.medisat.dk/services/v1_1/VidyoPortalUserService/'
+        //video.client.serviceURL = 'http://silverbullet.medisat.dk/services/VidyoPortalGuestService/'
+        //video.client.version = 3
+
+        continuousCtg {
+            enabled = true
+            url = "http://localhost:4000/continuous_ctg/"
+        }
+
     }
+    demo {
+        languageTag = 'en-US'
 
+        video.enabled = true
+        video.serviceURL = 'https://silverbullet.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://silverbullet.vconf.dk/services/VidyoPortalGuestService/'
+        video.client.version = 2
+
+        continuousCtg {
+            enabled = true
+            url = "http://localhost:4000/continuous_ctg/"
+        }
+    }
     performance {
-
     }
     test {
+    }
+    datamon_test {
+        measurement.results.tables.css = 'measurement_results_tables_rn.css'
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-test.rn.dk/opentele-citizen"
 
+        video.enabled = true
+        video.serviceURL = 'https://silverbullet.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://silverbullet.vconf.dk/services/VidyoPortalGuestService/'
+        video.client.version = 2
+
+        running.ctg.messaging.enabled = true
+    }
+    production {
+    }
+    nord_production {
+        measurement.results.tables.css = 'measurement_results_tables_rn.css'
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-rn.rn.dk/opentele-citizen"
+    }
+    midt_production {
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-rm.rn.dk/opentele-citizen"
+
+        running.ctg.messaging.enabled = true
+
+    }
+    hovedstaden_production {
+        grails.session.timeout.default = 60
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-rh.rn.dk/opentele-citizen"
+
+        video.enabled = true
+        video.serviceURL = 'https://regionh.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://regionh.vconf.dk/services/VidyoPortalGuestService/'
+        video.client.version = 2
+
+        help {
+            image {
+                uploadPath = "C:/billeder"
+                providedImagesPath = "C:/billeder"
+            }
+        }
+    }
+
+    hovedstaden_test {
+        grails.session.timeout.default = 60
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-tst-rh.rn.dk/opentele-citizen"
+
+        video.enabled = true
+        video.serviceURL = 'https://regionh.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://regionh.vconf.dk/services/VidyoPortalGuestService/'
+        video.client.version = 2
+
+        help {
+            image {
+                uploadPath = "C:/billeder"
+                providedImagesPath = "C:/billeder"
+            }
+        }
+    }
+
+    nord_staging {
+        measurement.results.tables.css = 'measurement_results_tables_rn.css'
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-stag-rn.rn.dk/opentele-citizen"
+    }
+    nord_education {
+        measurement.results.tables.css = 'measurement_results_tables_rn.css'
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-edu-rn.rn.dk"
+    }
+    midt_staging {
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-stag-rm.rn.dk/opentele-citizen"
+        running.ctg.messaging.enabled = true
+    }
+    hovedstaden_staging {
+        grails.session.timeout.default = 60
+
+        grails.app.context = "/"
+        grails.logging.jul.usebridge = false
+        grails.serverURL = "https://datamon-stag-rh.rn.dk/opentele-citizen"
+
+        video.enabled = true
+        video.serviceURL = 'https://regionh.vconf.dk/services/v1_1/VidyoPortalUserService/'
+        video.client.serviceURL = 'https://regionh.vconf.dk/services/VidyoPortalGuestService/'
+        video.client.version = 2
+
+        help {
+            image {
+                uploadPath = "C:/billeder"
+                providedImagesPath = "C:/billeder"
+            }
+        }
     }
 }
 
@@ -154,6 +293,8 @@ log4j = {
             'grails.app.services.grails.buildtestdata',
             'grails.buildtestdata.DomainInstanceBuilder'
 
+    info additivity: false, statistics: ['grails.app.filters.org.opentele.server.SessionStatisticsFilters']
+
     root {
         error 'opentele', 'stdout'
     }
@@ -174,6 +315,46 @@ log4j = {
         }
         test {
             debug 'grails.app',
+                    'org.opentele'
+        }
+        datamon_test {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        winbuild {
+            debug   'grails.app',
+                    'org.opentele'
+        }
+        nord_production {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        midt_production {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        hovedstaden_production {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        nord_staging {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        nord_education {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        midt_staging {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        hovedstaden_staging {
+            info    'grails.app',
+                    'org.opentele'
+        }
+        hovedstaden_test {
+            info    'grails.app',
                     'org.opentele'
         }
     }

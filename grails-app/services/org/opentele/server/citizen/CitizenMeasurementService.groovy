@@ -3,6 +3,7 @@ package org.opentele.server.citizen
 import org.opentele.server.citizen.measurement.TableData
 import org.opentele.server.citizen.measurement.TableMeasurement
 import org.opentele.server.core.model.types.MeasurementTypeName
+import org.opentele.server.core.util.MeasurementOrderUtil
 import org.opentele.server.core.util.TimeFilter
 import org.opentele.server.model.*
 import org.opentele.server.model.cgm.*
@@ -32,7 +33,8 @@ class CitizenMeasurementService {
         }
 	
         def nonCTGTables = tableData.findAll{it.type.toString() != 'CTG'} //We cannot meaningfully show CTG data
-        nonCTGTables
+
+        MeasurementOrderUtil.ensureCorrectOrderOfTableUrineMeasurements(nonCTGTables)
     }
 
     private static void processMeasurements(Patient patient, TimeFilter timeFilter,
